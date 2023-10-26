@@ -1,9 +1,0 @@
-res://addons/global_input_plugin/autoload/global_input/GlobalInput.tscn
-res://addons/global_input_plugin/autoload/global_input/GlobalInput.cs
-res://addons/global_input_plugin/global_input_plugin.cs
-res://addons/global_input_plugin/scenes/example_scene/CSharpExample.tscn
-res://addons/global_input_plugin/scenes/example_scene/CSharpExample.cs
-res://addons/global_input_plugin/scenes/example_scene/CSharp/CSharpExample.tscn
-res://addons/global_input_plugin/scenes/example_scene/CSharp/CSharpExample.cs
-res://addons/global_input_plugin/scenes/example_scene/GdScript/GdScriptExample.gd
-res://addons/global_input_plugin/scenes/example_scene/GdScript/GdScriptExample.tscn
