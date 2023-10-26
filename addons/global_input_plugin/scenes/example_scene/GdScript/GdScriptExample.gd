@@ -4,6 +4,7 @@ var controls = {"test_key": [KEY_W, KEY_A],
 				"test_mouse": [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]}
 
 func _enter_tree() -> void:
+	#you can do this via ProjectSettings -> InputMap
 	var ev
 	for action in controls:
 		if not InputMap.has_action(action):
