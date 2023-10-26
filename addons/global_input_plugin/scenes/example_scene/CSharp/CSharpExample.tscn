@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b4mygbrretf1h"]
+
+[ext_resource type="Script" path="res://addons/global_input_plugin/scenes/example_scene/CSharp/CSharpExample.cs" id="1_qroba"]
+
+[node name="CSharpExample" type="Node"]
+script = ExtResource("1_qroba")

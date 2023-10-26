@@ -1,0 +1,27 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="GlobalInput"
+config/features=PackedStringArray("4.2", "C#")
+config/icon="res://icon.png"
+
+[autoload]
+
+GlobalInput="*res://addons/global_input_plugin/autoload/global_input/GlobalInput.tscn"
+
+[dotnet]
+
+project/assembly_name="GlobalInput"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/global_input_plugin/plugin.cfg")

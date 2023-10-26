@@ -1,0 +1,16 @@
+ea4bc82a6ad023ab7ee23ee620429895
+::res://::1698357441
+icon.png::CompressedTexture2D::7908174755188712746::1698352987::1698353022::1::::<><>::
+::res://addons/::1698354279
+::res://addons/global_input_plugin/::1698355526
+global_input_plugin.cs::CSharpScript::-1::1698355488::0::1::::<>EditorPlugin<>::
+plugin.cfg::TextFile::-1::1698354279::0::1::::<><>::
+::res://addons/global_input_plugin/autoload/::1698354301
+::res://addons/global_input_plugin/autoload/global_input/::1698357442
+GlobalInput.cs::CSharpScript::-1::1698356430::0::1::::<>Node<>::
+GlobalInput.tscn::PackedScene::2413626062852669426::1698357442::0::1::::<><>::res://addons/global_input_plugin/autoload/global_input/GlobalInput.cs
+::res://addons/global_input_plugin/scenes/::1698355532
+::res://addons/global_input_plugin/scenes/example_scene/::1698357441
+::res://addons/global_input_plugin/scenes/example_scene/CSharp/::1698357442
+CSharpExample.cs::CSharpScript::-1::1698357504::0::1::::<>Node<>::
+CSharpExample.tscn::PackedScene::4448137684398108231::1698357442::0::1::::<><>::res://addons/global_input_plugin/scenes/example_scene/CSharp/CSharpExample.cs
