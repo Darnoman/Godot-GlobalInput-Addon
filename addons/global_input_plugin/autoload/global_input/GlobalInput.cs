@@ -65,6 +65,7 @@ public partial class GlobalInput : Node
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool GetCursorPos(out MousePoint lpMousePoint);
+	
 
 	/// <summary>
 	/// Imitates mouse events
@@ -134,6 +135,11 @@ public partial class GlobalInput : Node
 		var gotPoint = GetCursorPos(out currentMousePoint);
 		if (!gotPoint) { currentMousePoint = new MousePoint(0,0); }
 		return currentMousePoint;
+	}
+
+	public Vector2 GetMousePosition(){
+		MousePoint position = GetCursorPosition();
+		return new Vector2(position.X, position.Y);
 	}
 
 	public void SetCursorPosition(int x, int y){
