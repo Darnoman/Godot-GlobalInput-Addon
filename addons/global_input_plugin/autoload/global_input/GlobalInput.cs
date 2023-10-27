@@ -461,7 +461,6 @@ public partial class GlobalInput : Node
 
 	public int GetInputEventIdentifyer(InputEvent e){
 		if (e is InputEventMouseButton eventMouseButton){
-			GD.Print(eventMouseButton.ButtonIndex.ToString().ToLower());
 			return GodotMouseToWindowMouse[eventMouseButton.ButtonIndex.ToString().ToLower()];
 		}
 		else if (e is InputEventKey eventKey){
