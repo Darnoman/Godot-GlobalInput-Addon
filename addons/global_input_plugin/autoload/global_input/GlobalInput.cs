@@ -464,7 +464,11 @@ public partial class GlobalInput : Node
 
 	public int GetInputEventIdentifyer(InputEvent e){
 		if (e is InputEventMouseButton eventMouseButton){
-			return GodotMouseToWindowMouse[eventMouseButton.ButtonIndex.ToString().ToLower()];
+			int MouseButtonIndex = 0;
+			if (GodotMouseToWindowMouse.ContainsKey(eventMouseButton.ButtonIndex.ToString().ToLower())){
+				MouseButtonIndex = GodotMouseToWindowMouse[eventMouseButton.ButtonIndex.ToString().ToLower()];
+			}
+			return MouseButtonIndex;
 		}
 		else if (e is InputEventKey eventKey){
 			string keycodeString = OS.GetKeycodeString(eventKey.PhysicalKeycode); // get the name of the key
