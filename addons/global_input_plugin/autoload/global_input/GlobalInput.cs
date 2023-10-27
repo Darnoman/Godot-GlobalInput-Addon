@@ -168,6 +168,9 @@ public partial class GlobalInput : Node
 	[DllImport("user32.dll", SetLastError = true)]
 	static extern void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
 
+	[System.Runtime.InteropServices.DllImport("user32.dll")]
+	private static extern short VkKeyScan(char ch);
+
 	[Flags]
 	public enum KeyEventF{
 		KeyDown = 0x0000,
@@ -467,6 +470,13 @@ public partial class GlobalInput : Node
 			string keycodeString = OS.GetKeycodeString(eventKey.PhysicalKeycode); // get the name of the key
 			// get the window keycode base on the GodotKeyToWindowKey map and return it
 			int windowKeyCode = GodotKeyToWindowKey.ContainsKey(keycodeString) ? GodotKeyToWindowKey[keycodeString] : 0;
+			if (windowKeyCode == 0){
+				char c = (char)((int)eventKey.PhysicalKeycode);
+				KeycodeHelper keycodeHelper = new KeycodeHelper { Value = VkKeyScan(c)};
+				byte virtualKeycode = keycodeHelper.Low;
+				byte shiftState = keycodeHelper.High;
+				windowKeyCode = virtualKeycode;
+			}
 			return windowKeyCode;
 		}
 		return 0;
