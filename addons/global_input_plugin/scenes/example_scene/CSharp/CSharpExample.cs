@@ -60,7 +60,7 @@ public partial class CSharpExample : Node
 
 		if (GlobalInput.IsActionPressed("test_mouse")){
 			GD.Print("Mouse Is Pressed");
-			GD.Print(GlobalInput.GetCursorPosition());
+			GD.Print(GlobalInput.GetMousePosition());
 		}
 
 		if (GlobalInput.IsActionJustReleased("test_mouse")){

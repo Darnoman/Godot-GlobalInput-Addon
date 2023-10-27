@@ -27,7 +27,6 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	print(GlobalInput.GetMousePosition())
 	if GlobalInput.IsActionJustPressed("test_key"):
 		print("key just pressed")
 	if GlobalInput.IsActionPressed("test_key"):

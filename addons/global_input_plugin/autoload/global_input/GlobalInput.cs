@@ -130,7 +130,7 @@ public partial class GlobalInput : Node
         }
     }
 	
-	public MousePoint GetCursorPosition(){
+	public MousePoint GetMousePointPosition(){
 		MousePoint currentMousePoint;
 		var gotPoint = GetCursorPos(out currentMousePoint);
 		if (!gotPoint) { currentMousePoint = new MousePoint(0,0); }
@@ -138,46 +138,37 @@ public partial class GlobalInput : Node
 	}
 
 	public Vector2 GetMousePosition(){
-		MousePoint position = GetCursorPosition();
+		MousePoint position = GetMousePointPosition();
 		return new Vector2(position.X, position.Y);
 	}
 
-	public void SetCursorPosition(int x, int y){
+	public void SetMousePosition(int x, int y){
 		SetCursorPos(x, y);
 	}
 
-	public void SetCursorPosition(MousePoint point){
-		SetCursorPosition(point.X, point.Y);
+	public void SetMousePosition(MousePoint point){
+		SetMousePosition(point.X, point.Y);
 	}
 	
-	public void MouseEvent(MouseEventFlags value, MousePoint? point = null){
+	public void SetMouseEvent(MouseEventFlags value, MousePoint? point = null){
 		if(point == null){ // default value of point
-			point = GetCursorPosition();
+			point = GetMousePointPosition();
 		}
 		MousePoint position = (MousePoint)point;
 		mouse_event((int)value, position.X, position.Y, 0, 0);
 	}
-	/*
-	
-	*/
+
 	public short GetMouseKeyState(MouseButton button){
 		short state = GetKeyState((int)button);
 		return state;
 	}
 	
 	// Keyboard
-	/*
-	
-	*/
 	[DllImport("user32.dll", SetLastError = true)]
 	static extern void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
-	/*
-	
-	*/
+
 	[DllImport("user32.dll")]static extern short VkKeyScan(char ch);
-	/*
-	
-	*/
+
 	[Flags]
 	public enum KeyEventF{
 		KeyDown = 0x0000,
@@ -186,9 +177,7 @@ public partial class GlobalInput : Node
 		Unicode = 0x0004,
 		Scancode = 0x0008
 	}
-	/*
 
-	*/
 	[StructLayout(LayoutKind.Explicit)]
 	struct KeycodeHelper
 	{
@@ -201,9 +190,7 @@ public partial class GlobalInput : Node
             return $"Value: {Value} \nLow: {Low} \nHigh: {High}";
         }
     }
-	/*
 
-	*/
 	[StructLayout(LayoutKind.Sequential)]
 	public struct KeyboardInput{
 		public ushort wVk;
@@ -370,4 +357,5 @@ public partial class GlobalInput : Node
 		}
 		return 0;
 	}
+	
 }
