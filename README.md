@@ -11,7 +11,8 @@
 https://youtu.be/oJLsgq3i-yw - for v 0.1 (but should still work)
 
 **How To Use**
-**GdScript**
+
+**GdScript:**
 After activiating the pluggin, access the GlobalInput singleton/autoload with 'GlobalInput'. 
 Functions within GlobalInput autoload:
 1. GlobalInput.is_action_just_pressed(action: String)
@@ -19,7 +20,7 @@ Functions within GlobalInput autoload:
 3. GlobalInput.is_action_just_released(action: String)
 4. GlobalInput.get_mouse_position()
 
-**C#**
+**C#:**
 After activating the pluggin, access the GlobalInputCSharp singleton/autoload with:
 'GlobalInputCSharp GlobalInput; // declare the variable'
 (within the _Ready function)
