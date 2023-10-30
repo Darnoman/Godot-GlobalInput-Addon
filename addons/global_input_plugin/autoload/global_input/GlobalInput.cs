@@ -354,7 +354,6 @@ public partial class GlobalInput : Node
 
     public override void _Ready()
     {
-		GD.Print(GodotMouseToWindowMouse);
 		foreach(string action in InputMap.GetActions()){
 			ActionDictionary.Add(action, new Dictionary<string,Dictionary<string,bool>>());
 			foreach(InputEvent e in InputMap.ActionGetEvents(action)){
@@ -388,7 +387,7 @@ public partial class GlobalInput : Node
 
 	public bool IsActionJustPressed(string action){
 		foreach(InputEvent e in InputMap.ActionGetEvents(action)){ // get all inputs within action
-			if (e is InputEventMouseButton eventMouseButton){ // if input is a key
+			if (e is InputEventMouseButton eventMouseButton){ // if input is a mouse button
 				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventMouseButton.ButtonIndex.ToString()];
 				EventDictionary["clickedPrevState"] = EventDictionary["clickedState"];
 				EventDictionary["clickedState"] = GetKeyboardState(GetInputEventIdentifyer(eventMouseButton)) < 0;
