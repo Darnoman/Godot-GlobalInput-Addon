@@ -5,6 +5,9 @@
 2. Create a temp.cs file to be able to build the addon
 3. Activate the addon.
 
+**Setup Video**
+https://youtu.be/oJLsgq3i-yw
+
 It adds a GlobalInput singleton/addon.
 
 Note: This was written in C# and uses System User32.dll, (so I think it'll only work on windows)
