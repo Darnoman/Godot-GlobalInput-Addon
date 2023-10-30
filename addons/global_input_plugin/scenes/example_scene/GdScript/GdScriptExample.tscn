@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://c4tyko2g8mpjd"]
-
-[ext_resource type="Script" path="res://addons/global_input_plugin/scenes/example_scene/GdScript/GdScriptExample.gd" id="1_t3ljp"]
-
-[node name="GdScriptExample" type="Node"]
-script = ExtResource("1_t3ljp")

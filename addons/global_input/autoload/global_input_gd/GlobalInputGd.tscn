@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cupfn85tadibs"]
+
+[ext_resource type="Script" path="res://addons/global_input/autoload/global_input_gd/GlobalInputGd.gd" id="1_y0lpq"]
+
+[node name="GlobalInputGd" type="Node"]
+script = ExtResource("1_y0lpq")

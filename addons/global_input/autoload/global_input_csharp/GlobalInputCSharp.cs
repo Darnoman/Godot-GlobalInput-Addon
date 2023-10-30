@@ -3,40 +3,44 @@ using Godot.Collections;
 using System;
 using System.Runtime.InteropServices;
 
-public partial class GlobalInput : Node
+public partial class GlobalInputCSharp : Node
 {
-	// Both
-	
-	[DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
-    private static extern short GetKeyState(int nVirtKey);
-
-	[DllImport("user32.dll", SetLastError = true)]
-	private static extern uint SendInput(uint nInputs, Input[] pInputs, int cbSize);
-
-	[DllImport("user32.dll")]
-	private static extern IntPtr GetMessageExtraInfo();
-	
-	[StructLayout(LayoutKind.Sequential)]
-	public struct HardwareInput{
-		public uint uMsg;
-		public ushort wParamL;
-		public ushort wParamH;
-	}
-	
+	// Setup
 	[Flags]
 	public enum InputType{
 		Mouse = 0,
 		Keyboard = 1,
 		Hardware = 2
 	}
-	
+	[StructLayout(LayoutKind.Sequential)]
+	public struct MouseInput{
+		public int dx;
+		public int dy;
+		public uint mouseData;
+		public uint dwFlags;
+		public uint time;
+		public IntPtr dwExtraInfo;
+	}
+	[StructLayout(LayoutKind.Sequential)]
+	public struct KeyboardInput{
+		public ushort wVk;
+		public ushort wScan;
+		public uint dwFlags;
+		public uint time;
+		public IntPtr dwExtraInfo;
+	}
+	[StructLayout(LayoutKind.Sequential)]
+	public struct HardwareInput{
+		public uint uMsg;
+		public ushort wParamL;
+		public ushort wParamH;
+	}
 	[StructLayout(LayoutKind.Explicit)]
 	public struct InputUnion{
 		[FieldOffset(0)] public MouseInput mi;
 		[FieldOffset(0)] public KeyboardInput ki;
 		[FieldOffset(0)] public HardwareInput hi;
 	}
-	
 	public struct Input{
 		public int type;
 		public InputUnion u;
@@ -46,47 +50,35 @@ public partial class GlobalInput : Node
             throw new NotImplementedException();
         }
     }
-	
-	// Mouse
-	/// <summary>
-	/// Sets the mouse cursor to the give x and y cordinat without imitating mouse movement.
-	/// </summary>
-	/// <param name="x">The x position</param>
-	/// <param name="y">The y position</param>
-	/// <returns></returns>
-	[DllImport("user32.dll", EntryPoint = "SetCursorPos")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool SetCursorPos(int x, int y);      
+	[DllImport("user32.dll", SetLastError = true)]
+	private static extern uint SendInput(uint nInputs, Input[] pInputs, int cbSize);
 
-	/// <summary>
-	/// Sets the given variable to the current mouse position
-	/// </summary>
-	/// <param name="lpMousePoint">the variable used to store the current mouse position</param>
-	/// <returns></returns>
-    [DllImport("user32.dll")]
+	[DllImport("user32.dll")]
+	private static extern IntPtr GetMessageExtraInfo();
+
+
+	[StructLayout(LayoutKind.Sequential)]
+    public struct MousePoint{
+		public int X;
+        public int Y;
+
+        public MousePoint(int x, int y){
+            X = x;
+            Y = y;
+        }
+
+        public override string ToString(){
+            return $"({X}, {Y})";
+        }
+    }
+	[DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool GetCursorPos(out MousePoint lpMousePoint);
-	
 
-	/// <summary>
-	/// Imitates mouse events
-	/// </summary>
-	/// <param name="dwFlags"> the event you want to do</param>
-	/// <param name="dx"> x position of mouse</param>
-	/// <param name="dy"> y position of mouse</param>
-	/// <param name="dwData"></param>
-	/// <param name="dwExtraInfo"></param>
-    [DllImport("user32.dll")]
-    private static extern void mouse_event(int dwFlags, int dx, int dy, int dwData, int dwExtraInfo);
+	[DllImport("user32.dll", EntryPoint = "SetCursorPos")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool SetCursorPos(int x, int y);
 
-	[Flags]
-	public enum MouseButton{
-		Left = 0,
-		Middle = 1,
-		Right = 2,
-		XButton1 = 3,
-		XButton2 = 4
-	}
 	
 	[Flags]
 	public enum MouseEventFlags{
@@ -105,72 +97,9 @@ public partial class GlobalInput : Node
 		XDown = 0x0080,
 		XUp = 0x0100
 	}
-
-	[StructLayout(LayoutKind.Sequential)]
-	public struct MouseInput{
-		public int dx;
-		public int dy;
-		public uint mouseData;
-		public uint dwFlags;
-		public uint time;
-		public IntPtr dwExtraInfo;
-	}
-
-	[StructLayout(LayoutKind.Sequential)]
-    public struct MousePoint{
-        public int X;
-        public int Y;
-
-        public MousePoint(int x, int y){
-            X = x;
-            Y = y;
-        }
-
-        public override string ToString(){
-            return $"({X}, {Y})";
-        }
-    }
+	[DllImport("user32.dll")]
+    private static extern void mouse_event(int dwFlags, int dx, int dy, int dwData, int dwExtraInfo);
 	
-	public MousePoint GetMousePointPosition(){
-		MousePoint currentMousePoint;
-		var gotPoint = GetCursorPos(out currentMousePoint);
-		if (!gotPoint) { currentMousePoint = new MousePoint(0,0); }
-		return currentMousePoint;
-	}
-
-	public Vector2 GetMousePosition(){
-		MousePoint position = GetMousePointPosition();
-		return new Vector2(position.X, position.Y);
-	}
-
-	public void SetMousePosition(int x, int y){
-		SetCursorPos(x, y);
-	}
-
-	public void SetMousePosition(MousePoint point){
-		SetMousePosition(point.X, point.Y);
-	}
-	
-	public void SetMouseEvent(MouseEventFlags value, MousePoint? point = null){
-		if(point == null){ // default value of point
-			point = GetMousePointPosition();
-		}
-		MousePoint position = (MousePoint)point;
-		mouse_event((int)value, position.X, position.Y, 0, 0);
-	}
-
-	public short GetMouseKeyState(MouseButton button){
-		short state = GetKeyState((int)button);
-		return state;
-	}
-	
-	// Keyboard
-	[DllImport("user32.dll", SetLastError = true)]
-	static extern void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
-
-	[System.Runtime.InteropServices.DllImport("user32.dll")]
-	private static extern short VkKeyScan(char ch);
-
 	[Flags]
 	public enum KeyEventF{
 		KeyDown = 0x0000,
@@ -179,47 +108,83 @@ public partial class GlobalInput : Node
 		Unicode = 0x0004,
 		Scancode = 0x0008
 	}
+	[DllImport("user32.dll", SetLastError = true)]
+	static extern void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
 
-	[StructLayout(LayoutKind.Explicit)]
-	struct KeycodeHelper
-	{
-		[FieldOffset(0)]public short Value;
-		[FieldOffset(0)]public byte Low;
-		[FieldOffset(1)]public byte High;
+	[DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+    private static extern short GetKeyState(int nVirtKey);
 
-        public override string ToString()
-        {
-            return $"Value: {Value} \nLow: {Low} \nHigh: {High}";
-        }
-    }
+	[System.Runtime.InteropServices.DllImport("user32.dll")]
+	private static extern short VkKeyScan(char ch);
 
-	[StructLayout(LayoutKind.Sequential)]
-	public struct KeyboardInput{
-		public ushort wVk;
-		public ushort wScan;
-		public uint dwFlags;
-		public uint time;
-		public IntPtr dwExtraInfo;
+	// Mouse Functions
+	/// <summary>
+	/// Returns a MousePoint variable containing the mouse position
+	/// </summary>
+	/// <returns>currentMousePoint - Contains the x and y position of the mouse</returns>
+	private MousePoint GetMousePointPosition(){
+		MousePoint currentMousePoint;
+		var gotPoint = GetCursorPos(out currentMousePoint);
+		if (!gotPoint) { currentMousePoint = new MousePoint(0,0); }
+		return currentMousePoint;
 	}
 
-	private Dictionary<int, int> GodotToKeyCode = new Dictionary<int, int>() {
+	/// <summary>
+	/// Returns the mouse position relative to the top left corner of the primary screen
+	/// </summary>
+	/// <returns>A Vector2 with the position of the mouse</returns>
+	public Vector2 GetMousePosition(){
+		MousePoint position = GetMousePointPosition();
+		return new Vector2(position.X, position.Y);
+	}
 
-	};
-	
+	/// <summary>
+	/// Sets the mouse position to given vector x and y. Teleports the mouse, does not imitate mouse moving to the point.
+	/// </summary>
+	/// <param name="vector">The vector containing where the mouse x and y position should be set to</param>
+	public void SetMousePosition(Vector2I vector){
+		SetCursorPos(vector.X, vector.Y);
+	}
 
-	public void KeyboardEvent(byte keycode, byte scancode, int keyFlag, int extraInfo){
+	/// <summary>
+	/// Imitates mouse events such as mouse clicks, movements, etc...
+	/// </summary>
+	/// <param name="flag">The MouseEventFlags to imitate</param>
+	/// <param name="vector">The mouse position to do the event</param>
+	public void SetMouseEvent(MouseEventFlags flag, Vector2I? vector = null){
+		if (vector == null){ // if no position is given
+			vector = (Vector2I?)GetMousePosition(); // use current mouse position
+		}
+		Vector2I mousePosition = (Vector2I)vector; // conver the Vector2I? to Vector2 so that it can be used in mouse_event
+		mouse_event((int)flag, mousePosition.X, mousePosition.Y, 0, 0);
+	}
+
+	// Keyboard Functions
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="keycode"></param>
+	/// <param name="scancode"></param>
+	/// <param name="keyFlag"></param>
+	/// <param name="extraInfo"></param>
+	public void SetKeyboardEvent(byte keycode, byte scancode, int keyFlag = 0, int extraInfo = 0){
 		keybd_event(keycode, scancode, keyFlag, extraInfo);
 	}
 
-	public void KeyboardEvent(byte keycode, int keyFlag){
-		keybd_event(keycode, 0, keyFlag, 0);
-	}
-
-	public short GetKeyboardState(int keycode){
+	/// <summary>
+	/// Returns the state of the keycode
+	/// </summary>
+	/// <param name="keycode">Window's virtual keycode's state to check</param>
+	/// <returns>The state of the keycode</returns>
+	public short GetMouseAndKeyState(int keycode){
 		return GetKeyState(keycode);
 	}
 
-    // Godot Section
+	// Godot Section
+
+	/// <summary>
+	/// Maps Godot keycodes to Window's virtual keycodes
+	/// </summary>
 	Dictionary<string, int> GodotKeyToWindowKey = new() {
 		// none
 		{Key.None.ToString(), 0x00},
@@ -330,52 +295,64 @@ public partial class GlobalInput : Node
 
 	};
 	
+	/// <summary>
+	/// Maps Godot mouse buttons to Window's virtual keycodes
+	/// </summary>
 	Dictionary<string, int> GodotMouseToWindowMouse = new() {
 		{MouseButton.Left.ToString().ToLower(), 0x01},
 		{MouseButton.Right.ToString().ToLower(), 0x02},
 		{MouseButton.Middle.ToString().ToLower(), 0x04},
-		{MouseButton.XButton1.ToString().ToLower(), 0x05},
-		{MouseButton.XButton2.ToString().ToLower(), 0x06},
+		{MouseButton.Xbutton1.ToString().ToLower(), 0x05},
+		{MouseButton.Xbutton2.ToString().ToLower(), 0x06},
 	};
 	
-	/*{
-		<StringName action>: {
-			<int EventCode>: {
-				"pressedState", false,
-				...
-			},
-			<int EventCode>: {
-				"pressedState", false,
-				...
-			},
-		}
-	}*/
+	/// <summary>
+	/// A map of actions and their events. Inside their events, it stores whether is just pressed, is pressed, or is just released.
+	///	 <StringName action>: {
+	///	 	<String eventName>: {
+	///	 		"pressedState", false,
+	///			"pressedPrevState", false,
+	///			"clickedState", false,
+	///			"clickedPrevState", false,
+	///			"releasedState", false,
+	///			"releasedPrevState", false
+	///	 	},
+	///	 }
+	/// </summary>
 	public Dictionary ActionDictionary = new Dictionary();
 
-    public override void _Ready()
-    {
-		foreach(string action in InputMap.GetActions()){
-			ActionDictionary.Add(action, new Dictionary<string,Dictionary<string,bool>>());
-			foreach(InputEvent e in InputMap.ActionGetEvents(action)){
-				if (e is InputEventMouseButton eventMouseButton){
-					((Dictionary)ActionDictionary[action]).Add(eventMouseButton.ButtonIndex.ToString(), new Dictionary<string, bool>
+	/// <summary>
+	/// Initializes ActionDictionary with all inputs from InputMap
+	/// </summary>
+	private void InitializeActionDictionary(){
+		foreach(string action in InputMap.GetActions()){ // get all actions within input map
+			ActionDictionary.Add(action, new Dictionary<string,Dictionary<string,bool>>()); // add the action string as key and new dictionary as value
+			foreach(InputEvent e in InputMap.ActionGetEvents(action)){ // get all events within the action
+				if (e is InputEventMouseButton eventMouseButton){ // if its a mouse button
+					((Dictionary)ActionDictionary[action]).Add(eventMouseButton.ButtonIndex.ToString(), new Dictionary<string, bool> // store a dict that contains all states
 													{
+														// used for IsActionPressed
 														{ "pressedState", false },
 														{ "pressedPrevState", false },
+														// used for IsActionJustPressed
 														{ "clickedState", false },
 														{ "clickedPrevState", false },
+														// used for IsActionJustRelease
 														{ "releasedState", false},
 														{ "releasedPrevState", false}
 													});
 				}
-				if (e is InputEventKey eventKey){
-					if (!((Dictionary)ActionDictionary[action]).ContainsKey(eventKey.AsText())){
-						((Dictionary)ActionDictionary[action]).Add(eventKey.AsText(), new Dictionary<string, bool>
+				if (e is InputEventKey eventKey){ // if its a key button
+					if (!((Dictionary)ActionDictionary[action]).ContainsKey(eventKey.AsText())){ // check if action doesn't contains key
+						((Dictionary)ActionDictionary[action]).Add(eventKey.AsText(), new Dictionary<string, bool> // store a dict that contains all states
 													{
+														// used for IsActionPressed
 														{ "pressedState", false },
 														{ "pressedPrevState", false },
+														// used for IsActionJustPressed
 														{ "clickedState", false },
 														{ "clickedPrevState", false },
+														// used for IsActionJustRelease
 														{ "releasedState", false},
 														{ "releasedPrevState", false}
 													});
@@ -383,14 +360,25 @@ public partial class GlobalInput : Node
 				}
 			}
 		}
+	}
+
+    public override void _Ready()
+    {
+		// when ready initialize ActionDictionary
+        InitializeActionDictionary();
     }
 
+	/// <summary>
+	/// Checks if any event from action is just pressed
+	/// </summary>
+	/// <param name="action">Action StringName to check</param>
+	/// <returns>true if any events in action are just pressed else false</returns>
 	public bool IsActionJustPressed(string action){
 		foreach(InputEvent e in InputMap.ActionGetEvents(action)){ // get all inputs within action
 			if (e is InputEventMouseButton eventMouseButton){ // if input is a mouse button
 				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventMouseButton.ButtonIndex.ToString()];
 				EventDictionary["clickedPrevState"] = EventDictionary["clickedState"];
-				EventDictionary["clickedState"] = GetKeyboardState(GetInputEventIdentifyer(eventMouseButton)) < 0;
+				EventDictionary["clickedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(eventMouseButton)) < 0;
 				bool state = (bool)EventDictionary["clickedState"];
 				bool prevState = (bool)EventDictionary["clickedPrevState"];
 				if (state && !prevState){
@@ -400,7 +388,7 @@ public partial class GlobalInput : Node
 			else if (e is InputEventKey eventKey){
 				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventKey.AsText()];
 				EventDictionary["clickedPrevState"] = EventDictionary["clickedState"];
-				EventDictionary["clickedState"] = GetKeyboardState(GetInputEventIdentifyer(eventKey)) < 0;
+				EventDictionary["clickedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(eventKey)) < 0;
 				bool state = (bool)EventDictionary["clickedState"];
 				bool prevState = (bool)EventDictionary["clickedPrevState"];
 				if (state && !prevState){
@@ -411,12 +399,17 @@ public partial class GlobalInput : Node
 		return false;
 	}
 
+	/// <summary>
+	/// Checks if any event from action is pressed
+	/// </summary>
+	/// <param name="action">Action StringName to check</param>
+	/// <returns>true if any events in action are pressed else false</returns>
 	public bool IsActionPressed(string action){
 		foreach(InputEvent e in InputMap.ActionGetEvents(action)){ // get all inputs within action
 			if (e is InputEventMouseButton eventMouseButton){ // if input is a mouse button
 				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventMouseButton.ButtonIndex.ToString()];
 				EventDictionary["pressedPrevState"] = EventDictionary["pressedState"];
-				EventDictionary["pressedState"] = GetKeyboardState(GetInputEventIdentifyer(eventMouseButton)) < 0;
+				EventDictionary["pressedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(eventMouseButton)) < 0;
 				bool state = (bool)EventDictionary["pressedState"];
 				if (state){ // get state and see whether or not button is being pressed
 					return true;
@@ -425,7 +418,7 @@ public partial class GlobalInput : Node
 			else if (e is InputEventKey eventKey){ // if input is a mouse button
 				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventKey.AsText()];
 				EventDictionary["pressedPrevState"] = EventDictionary["pressedState"];
-				EventDictionary["pressedState"] = GetKeyboardState(GetInputEventIdentifyer(eventKey)) < 0;
+				EventDictionary["pressedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(eventKey)) < 0;
 				bool state = (bool)EventDictionary["pressedState"];
 				if (state){ // get state and see whether or not button is being pressed
 					return true;
@@ -435,12 +428,17 @@ public partial class GlobalInput : Node
 		return false;
 	}
 
+	/// <summary>
+	/// Checks if any event from action is just release
+	/// </summary>
+	/// <param name="action">Action StringName to check</param>
+	/// <returns>true if any events in action are just release else false</returns>
 	public bool IsActionJustReleased(string action){
 		foreach(InputEvent e in InputMap.ActionGetEvents(action)){
 			if (e is InputEventMouseButton eventMouseButton){
 				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventMouseButton.ButtonIndex.ToString()];
 				EventDictionary["releasedPrevState"] = EventDictionary["releasedState"];
-				EventDictionary["releasedState"] = GetKeyboardState(GetInputEventIdentifyer(eventMouseButton)) < 0;
+				EventDictionary["releasedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(eventMouseButton)) < 0;
 				bool state = (bool)EventDictionary["releasedState"];
 				bool prevState = (bool)EventDictionary["releasedPrevState"];
 				if (!state && prevState){
@@ -450,7 +448,7 @@ public partial class GlobalInput : Node
 			else if (e is InputEventKey eventKey){
 				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventKey.AsText()];
 				EventDictionary["releasedPrevState"] = EventDictionary["releasedState"];
-				EventDictionary["releasedState"] = GetKeyboardState(GetInputEventIdentifyer(eventKey)) < 0;
+				EventDictionary["releasedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(eventKey)) < 0;
 				bool state = (bool)EventDictionary["releasedState"];
 				bool prevState = (bool)EventDictionary["releasedPrevState"];
 				if (!state && prevState){
@@ -461,6 +459,28 @@ public partial class GlobalInput : Node
 		return false;
 	}
 
+	public bool IsKeyPressed(Key key){
+		GD.Print(key);
+		return false;
+	}
+
+	[StructLayout(LayoutKind.Explicit)]
+	struct KeycodeHelper
+	{
+		[FieldOffset(0)]public short Value;
+		[FieldOffset(0)]public byte Low;
+		[FieldOffset(1)]public byte High;
+
+        public override string ToString()
+        {
+            return $"Value: {Value} \nLow: {Low} \nHigh: {High}";
+        }
+    }
+	/// <summary>
+	/// Maps event keycode to Window's virtual keycodes
+	/// </summary>
+	/// <param name="e">The event to map</param>
+	/// <returns>The Window's virutal keycode equivilant</returns>
 	public int GetInputEventIdentifyer(InputEvent e){
 		if (e is InputEventMouseButton eventMouseButton){
 			int MouseButtonIndex = 0;
