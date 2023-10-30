@@ -28,7 +28,7 @@ After activating the pluggin, access the GlobalInputCSharp singleton/autoload wi
 
 (within the _Ready function)
 
-'GlobalInput = GetNode<GlobalInputCSharp>("/root/GlobalInput/GlobalInputCSharp") // declare the variable'
+'GlobalInput = GetNode<GlobalInputCSharp>("/root/GlobalInput/GlobalInputCSharp") // initialize the variable'
 
 Functions within GlobalInputCSharp:
 1. GlobalInput.IsActionJustPressed(string action)
