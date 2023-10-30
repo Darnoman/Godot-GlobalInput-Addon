@@ -16,5 +16,5 @@ https://youtu.be/oJLsgq3i-yw
 3. IsActionJustRelease(string action)
 
 **C# Only Functions**
-1. SetMousePosition(int x, int y)
-2. SetMouseEvent(MouseEventFlags value, MousePoint? point)
+1. SetMousePosition(int x, int y) // used to set mouse position without imitating mouse movement (teleports cursor)
+2. SetMouseEvent(MouseEventFlags value, MousePoint? point) // used to move mouse to position - imitates mouse movement
