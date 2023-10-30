@@ -23,8 +23,11 @@ Functions within GlobalInput autoload:
 
 **C#:**
 After activating the pluggin, access the GlobalInputCSharp singleton/autoload with:
+
 'GlobalInputCSharp GlobalInput; // declare the variable'
+
 (within the _Ready function)
+
 'GlobalInput = GetNode<GlobalInputCSharp>("/root/GlobalInput/GlobalInputCSharp") // declare the variable'
 
 Functions within GlobalInputCSharp:
