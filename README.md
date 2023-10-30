@@ -1,7 +1,9 @@
 # Godot-GlobalInput-Addon
-Download and drag GlobalInput's addon folder in your project's addon folder.
 
-Activate the addon.
+**How to use:**
+1. Download and drag GlobalInput's addon folder in your project's addon folder.
+2. Create a temp.cs file to be able to build the addon
+3. Activate the addon.
 
 It adds a GlobalInput singleton/addon.
 
