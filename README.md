@@ -2,7 +2,7 @@
 
 **How to use:**
 1. Download and drag GlobalInput's addon folder in your project's addon folder.
-2. Create a temp.cs file to be able to build the addon
+2. Create a temp node scene with a temp .cs script to be able to build the addon
 3. Activate the addon.
 
 **Setup Video**
