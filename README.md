@@ -24,3 +24,4 @@ https://youtu.be/oJLsgq3i-yw
 **Things That is Missing**
 1. Mouse wheel input is not being captured (idk how)
 2. Find a neater way to convert Godot keycodes to Window VirtualKeycodes
+3. Good documentation
