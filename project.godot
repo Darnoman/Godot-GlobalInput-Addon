@@ -16,7 +16,7 @@ config/icon="res://icon.png"
 
 [autoload]
 
-GlobalInput="*res://addons/global_input_plugin/autoload/global_input/GlobalInput.tscn"
+GlobalInput="*res://addons/global_input/autoload/global_input_gd/GlobalInputGd.tscn"
 
 [dotnet]
 
@@ -24,4 +24,4 @@ project/assembly_name="GlobalInput"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/global_input_plugin/plugin.cfg")
+enabled=PackedStringArray("res://addons/global_input/plugin.cfg")

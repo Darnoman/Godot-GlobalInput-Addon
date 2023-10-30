@@ -8,7 +8,7 @@ public partial class CharacterBody2D : Godot.CharacterBody2D
 
     public override void _Ready()
     {
-        GlobalInput = GetNode<GlobalInputCSharp>("/root/GlobalInput/GlobalInputCSharp");
+        GlobalInput = GetNode<GlobalInputCSharp>("/root/GlobalInput/GlobalInputCSharp"); // get the c# version
     }
 
     public override void _PhysicsProcess(double delta)
