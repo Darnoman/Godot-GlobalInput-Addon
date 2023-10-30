@@ -10,6 +10,8 @@
 **Setup Video**
 https://youtu.be/oJLsgq3i-yw
 
+Methods must be used in process or physics process
+
 **Both Language Functions:**
 1. IsActionJustPressed(string action)
 2. IsActionPressed(string action)
