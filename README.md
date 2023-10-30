@@ -14,6 +14,7 @@ https://youtu.be/oJLsgq3i-yw - for v 0.1 (but should still work)
 
 **GdScript:**
 After activiating the pluggin, access the GlobalInput singleton/autoload with 'GlobalInput'. 
+
 Functions within GlobalInput autoload:
 1. GlobalInput.is_action_just_pressed(action: String)
 2. GlobalInput.is_action_pressed(action: String)
@@ -25,6 +26,7 @@ After activating the pluggin, access the GlobalInputCSharp singleton/autoload wi
 'GlobalInputCSharp GlobalInput; // declare the variable'
 (within the _Ready function)
 'GlobalInput = GetNode<GlobalInputCSharp>("/root/GlobalInput/GlobalInputCSharp") // declare the variable'
+
 Functions within GlobalInputCSharp:
 1. GlobalInput.IsActionJustPressed(string action)
 2. GlobalInput.IsActionPressed(string action)
