@@ -14,6 +14,7 @@ https://youtu.be/oJLsgq3i-yw
 1. IsActionJustPressed(string action)
 2. IsActionPressed(string action)
 3. IsActionJustRelease(string action)
+4. GetMousePosition() // returns it's position relative to top left of primary screen
 
 **C# Only Functions**
 1. SetMousePosition(int x, int y) // used to set mouse position without imitating mouse movement (teleports cursor)
