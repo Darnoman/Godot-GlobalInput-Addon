@@ -3,9 +3,10 @@
 **Note: This was written in C# and uses System User32.dll, (so I think it'll only work on windows)**
 
 **How to use:**
-1. Download and drag GlobalInput's addon folder in your project's addon folder.
-2. Create a temp node scene with a temp .cs script to be able to build the addon
-3. Activate the addon.
+1. Create a project using the mono version of Godot
+2. Download and drag GlobalInput's addon folder in your project's addon folder.
+3. Create a temp node scene with a temp .cs script to be able to build the addon
+4. Activate the addon.
 
 **Setup Video**
 https://youtu.be/oJLsgq3i-yw - for v 0.1 (but should still work)
