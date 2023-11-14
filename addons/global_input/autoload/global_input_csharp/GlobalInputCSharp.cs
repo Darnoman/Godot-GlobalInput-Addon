@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 
 public partial class GlobalInputCSharp : Node
 {
+	#region Setup
 	// Setup
 	[Flags]
 	public enum InputType{
@@ -116,7 +117,9 @@ public partial class GlobalInputCSharp : Node
 
 	[System.Runtime.InteropServices.DllImport("user32.dll")]
 	private static extern short VkKeyScan(char ch);
-
+	#endregion
+	
+	#region Mouse Functions
 	// Mouse Functions
 	/// <summary>
 	/// Returns a MousePoint variable containing the mouse position
@@ -158,7 +161,9 @@ public partial class GlobalInputCSharp : Node
 		Vector2I mousePosition = (Vector2I)vector; // conver the Vector2I? to Vector2 so that it can be used in mouse_event
 		mouse_event((int)flag, mousePosition.X, mousePosition.Y, 0, 0);
 	}
-
+	#endregion
+	
+	#region Keyboard Functions
 	// Keyboard Functions
 	/// <summary>
 	/// 
@@ -179,7 +184,9 @@ public partial class GlobalInputCSharp : Node
 	public short GetMouseAndKeyState(int keycode){
 		return GetKeyState(keycode);
 	}
+	#endregion
 
+	#region Godot Section
 	// Godot Section
 
 	/// <summary>
@@ -459,11 +466,6 @@ public partial class GlobalInputCSharp : Node
 		return false;
 	}
 
-	public bool IsKeyPressed(Key key){
-		GD.Print(key);
-		return false;
-	}
-
 	[StructLayout(LayoutKind.Explicit)]
 	struct KeycodeHelper
 	{
@@ -491,6 +493,9 @@ public partial class GlobalInputCSharp : Node
 		}
 		else if (e is InputEventKey eventKey){
 			string keycodeString = OS.GetKeycodeString(eventKey.PhysicalKeycode); // get the name of the key
+			if (keycodeString == ""){ // if there is no physical keycode
+				keycodeString = eventKey.AsText();
+			} 
 			// get the window keycode base on the GodotKeyToWindowKey map and return it
 			int windowKeyCode = GodotKeyToWindowKey.ContainsKey(keycodeString) ? GodotKeyToWindowKey[keycodeString] : 0;
 			if (windowKeyCode == 0){
@@ -504,5 +509,5 @@ public partial class GlobalInputCSharp : Node
 		}
 		return 0;
 	}
-
+	#endregion
 }
