@@ -380,7 +380,7 @@ public partial class GlobalInputCSharp : Node
 	/// </summary>
 	/// <param name="action">Action StringName to check</param>
 	/// <returns>true if any events in action are just pressed else false</returns>
-	public bool IsActionJustPressed(string action){
+	public bool IsActionJustPressed(StringName action){
 		foreach(InputEvent e in InputMap.ActionGetEvents(action)){ // get all inputs within action
 			if (e is InputEventMouseButton eventMouseButton){ // if input is a mouse button
 				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventMouseButton.ButtonIndex.ToString()];
@@ -411,7 +411,7 @@ public partial class GlobalInputCSharp : Node
 	/// </summary>
 	/// <param name="action">Action StringName to check</param>
 	/// <returns>true if any events in action are pressed else false</returns>
-	public bool IsActionPressed(string action){
+	public bool IsActionPressed(StringName action){
 		foreach(InputEvent e in InputMap.ActionGetEvents(action)){ // get all inputs within action
 			if (e is InputEventMouseButton eventMouseButton){ // if input is a mouse button
 				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventMouseButton.ButtonIndex.ToString()];
@@ -440,7 +440,7 @@ public partial class GlobalInputCSharp : Node
 	/// </summary>
 	/// <param name="action">Action StringName to check</param>
 	/// <returns>true if any events in action are just release else false</returns>
-	public bool IsActionJustReleased(string action){
+	public bool IsActionJustReleased(StringName action){
 		foreach(InputEvent e in InputMap.ActionGetEvents(action)){
 			if (e is InputEventMouseButton eventMouseButton){
 				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventMouseButton.ButtonIndex.ToString()];
@@ -465,6 +465,55 @@ public partial class GlobalInputCSharp : Node
 		}
 		return false;
 	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="key"></param>
+	/// <returns></returns>
+	public bool IsKeyPressed(Key key){
+		int windowKeyCode = GodotKeyToWindowKey.ContainsKey(key.ToString()) ? GodotKeyToWindowKey[key.ToString()] : 0;
+		if (windowKeyCode == 0){ // if key is not within GodotKeyToWindowKey dict
+			char c = (Char)key; // turn keycode into a char
+			KeycodeHelper keycodeHelper = new KeycodeHelper { Value = VkKeyScan(c)}; // get char's keycode
+			windowKeyCode = keycodeHelper.Low; // get the lowercase version
+		}
+		GD.Print(key + " " + windowKeyCode);
+		short keyState = GetMouseAndKeyState(windowKeyCode);
+		if (keyState < 0){
+			return true;
+		}
+		return false;
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="negativeX"></param>
+	/// <param name="positiveX"></param>
+	/// <param name="negativeY"></param>
+	/// <param name="positiveY"></param>
+	/// <returns></returns>
+	public Vector2 GetVector(StringName negativeX, StringName positiveX, StringName negativeY, StringName positiveY){
+		Vector2 inputVector = new Vector2();
+		inputVector.X = (IsActionPressed(positiveX) ? 1 : 0) - (IsActionPressed(negativeX) ? 1 : 0);
+		inputVector.Y = (IsActionPressed(positiveY) ? 1 : 0) - (IsActionPressed(negativeY) ? 1 : 0);
+		return inputVector;
+	}
+	
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns></returns>
+	public bool IsAnythingPressed(){
+		foreach(string action in InputMap.GetActions()){
+			if (IsActionPressed(action)){
+				return true;
+			}
+		}
+		return false;
+	}
+
 
 	[StructLayout(LayoutKind.Explicit)]
 	struct KeycodeHelper
@@ -494,12 +543,12 @@ public partial class GlobalInputCSharp : Node
 		else if (e is InputEventKey eventKey){
 			string keycodeString = OS.GetKeycodeString(eventKey.PhysicalKeycode); // get the name of the key
 			if (keycodeString == ""){ // if there is no physical keycode
-				keycodeString = eventKey.AsText();
+				keycodeString = eventKey.AsText(); // get keycode label
 			} 
 			// get the window keycode base on the GodotKeyToWindowKey map and return it
 			int windowKeyCode = GodotKeyToWindowKey.ContainsKey(keycodeString) ? GodotKeyToWindowKey[keycodeString] : 0;
 			if (windowKeyCode == 0){
-				char c = (char)((int)eventKey.PhysicalKeycode);
+				char c = (char)((int)eventKey.PhysicalKeycode); // turn keycode into car
 				KeycodeHelper keycodeHelper = new KeycodeHelper { Value = VkKeyScan(c)};
 				byte virtualKeycode = keycodeHelper.Low;
 				byte shiftState = keycodeHelper.High;
