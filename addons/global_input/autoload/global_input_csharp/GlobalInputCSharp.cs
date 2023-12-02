@@ -375,32 +375,55 @@ public partial class GlobalInputCSharp : Node
         InitializeActionDictionary();
     }
 
-	/// <summary>
-	/// Checks if any event from action is just pressed
-	/// </summary>
-	/// <param name="action">Action StringName to check</param>
-	/// <returns>true if any events in action are just pressed else false</returns>
-	public bool IsActionJustPressed(StringName action){
+
+    public override void _Process(double delta)
+    {
+        //GD.Print(ActionDictionary["test"]);
+    }
+
+    /// <summary>
+    /// Checks if any event from action is just pressed
+    /// </summary>
+    /// <param name="action">Action StringName to check</param>
+    /// <returns>true if any events in action are just pressed else false</returns>
+    public bool IsActionJustPressed(StringName action){
 		foreach(InputEvent e in InputMap.ActionGetEvents(action)){ // get all inputs within action
-			if (e is InputEventMouseButton eventMouseButton){ // if input is a mouse button
-				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventMouseButton.ButtonIndex.ToString()];
-				EventDictionary["clickedPrevState"] = EventDictionary["clickedState"];
-				EventDictionary["clickedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(eventMouseButton)) < 0;
-				bool state = (bool)EventDictionary["clickedState"];
-				bool prevState = (bool)EventDictionary["clickedPrevState"];
-				if (state && !prevState){
-					return true;
-				}
+			String eventType = null; // default to key
+			String eventString = null;
+			KeyModifierMask? eventModifierMask = null;
+			if (e is InputEventMouseButton eventMouseButton){
+				eventType = "MouseButton";
+				eventString = eventMouseButton.ButtonIndex.ToString();
+				eventModifierMask = eventMouseButton.GetModifiersMask();
 			}
 			else if (e is InputEventKey eventKey){
-				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventKey.AsText()];
-				EventDictionary["clickedPrevState"] = EventDictionary["clickedState"];
-				EventDictionary["clickedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(eventKey)) < 0;
-				bool state = (bool)EventDictionary["clickedState"];
-				bool prevState = (bool)EventDictionary["clickedPrevState"];
-				if (state && !prevState){
-					return true;
-				}
+				eventType = "Key";
+				eventString = eventKey.AsText();
+				eventModifierMask = eventKey.GetModifiersMask();
+			}
+
+			if (eventType == null) return false; // exits if event is neither key nor mouse
+
+			
+			Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventString];
+			
+			// check modifier
+			bool eventModifierState;
+			if (eventModifierMask > 0){
+				String eventModifierString = eventModifierMask.ToString().Replace("Mask", "");
+				int eventModifierKeyCode = GodotKeyToWindowKey[eventModifierString];
+				eventModifierState = GetMouseAndKeyState(eventModifierKeyCode) < 0;
+			}
+			else{
+				eventModifierState = true;
+			}
+			//GD.Print(GetMouseAndKeyState(GetInputEventIdentifyer(e)) + " " + eventModifierState);
+			EventDictionary["clickedPrevState"] = EventDictionary["clickedState"];
+			EventDictionary["clickedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(e)) < 0 && eventModifierState;
+			bool state = (bool)EventDictionary["clickedState"];
+			bool prevState = (bool)EventDictionary["clickedPrevState"];
+			if (state && !prevState){
+				return true;
 			}
 		}
 		return false;
@@ -413,24 +436,42 @@ public partial class GlobalInputCSharp : Node
 	/// <returns>true if any events in action are pressed else false</returns>
 	public bool IsActionPressed(StringName action){
 		foreach(InputEvent e in InputMap.ActionGetEvents(action)){ // get all inputs within action
-			if (e is InputEventMouseButton eventMouseButton){ // if input is a mouse button
-				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventMouseButton.ButtonIndex.ToString()];
-				EventDictionary["pressedPrevState"] = EventDictionary["pressedState"];
-				EventDictionary["pressedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(eventMouseButton)) < 0;
-				bool state = (bool)EventDictionary["pressedState"];
-				if (state){ // get state and see whether or not button is being pressed
-					return true;
-				}
+			String eventType = null; // default to key
+			String eventString = null;
+			KeyModifierMask? eventModifierMask = null;
+			if (e is InputEventMouseButton eventMouseButton){
+				eventType = "MouseButton";
+				eventString = eventMouseButton.ButtonIndex.ToString();
+				eventModifierMask = eventMouseButton.GetModifiersMask();
 			}
-			else if (e is InputEventKey eventKey){ // if input is a mouse button
-				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventKey.AsText()];
-				EventDictionary["pressedPrevState"] = EventDictionary["pressedState"];
-				EventDictionary["pressedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(eventKey)) < 0;
-				bool state = (bool)EventDictionary["pressedState"];
-				if (state){ // get state and see whether or not button is being pressed
-					return true;
-				}
+			else if (e is InputEventKey eventKey){
+				eventType = "Key";
+				eventString = eventKey.AsText();
+				eventModifierMask = eventKey.GetModifiersMask();
 			}
+
+			if (eventType == null) return false; // exits if event is neither key nor mouse
+
+			
+			Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventString];
+			
+			// check modifier
+			bool eventModifierState;
+			if (eventModifierMask > 0){
+				String eventModifierString = eventModifierMask.ToString().Replace("Mask", "");
+				int eventModifierKeyCode = GodotKeyToWindowKey[eventModifierString];
+				eventModifierState = GetMouseAndKeyState(eventModifierKeyCode) < 0;
+			}
+			else{
+				eventModifierState = true;
+			}
+			//GD.Print(GetMouseAndKeyState(GetInputEventIdentifyer(e)) + " " + eventModifierState);
+			EventDictionary["pressedPrevState"] = EventDictionary["pressedState"];
+			EventDictionary["pressedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(e)) < 0 && eventModifierState;
+			if ((bool)EventDictionary["pressedState"]){
+				return true;
+			}
+			
 		}
 		return false;
 	}
@@ -442,25 +483,42 @@ public partial class GlobalInputCSharp : Node
 	/// <returns>true if any events in action are just release else false</returns>
 	public bool IsActionJustReleased(StringName action){
 		foreach(InputEvent e in InputMap.ActionGetEvents(action)){
+			String eventType = null; // default to key
+			String eventString = null;
+			KeyModifierMask? eventModifierMask = null;
 			if (e is InputEventMouseButton eventMouseButton){
-				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventMouseButton.ButtonIndex.ToString()];
-				EventDictionary["releasedPrevState"] = EventDictionary["releasedState"];
-				EventDictionary["releasedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(eventMouseButton)) < 0;
-				bool state = (bool)EventDictionary["releasedState"];
-				bool prevState = (bool)EventDictionary["releasedPrevState"];
-				if (!state && prevState){
-					return true;
-				}
+				eventType = "MouseButton";
+				eventString = eventMouseButton.ButtonIndex.ToString();
+				eventModifierMask = eventMouseButton.GetModifiersMask();
 			}
 			else if (e is InputEventKey eventKey){
-				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventKey.AsText()];
-				EventDictionary["releasedPrevState"] = EventDictionary["releasedState"];
-				EventDictionary["releasedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(eventKey)) < 0;
-				bool state = (bool)EventDictionary["releasedState"];
-				bool prevState = (bool)EventDictionary["releasedPrevState"];
-				if (!state && prevState){
-					return true;
-				}
+				eventType = "Key";
+				eventString = eventKey.AsText();
+				eventModifierMask = eventKey.GetModifiersMask();
+			}
+
+			if (eventType == null) return false; // exits if event is neither key nor mouse
+
+			
+			Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventString];
+			
+			// check modifier
+			bool eventModifierState;
+			if (eventModifierMask > 0){
+				String eventModifierString = eventModifierMask.ToString().Replace("Mask", "");
+				int eventModifierKeyCode = GodotKeyToWindowKey[eventModifierString];
+				eventModifierState = GetMouseAndKeyState(eventModifierKeyCode) < 0;
+			}
+			else{
+				eventModifierState = true;
+			}
+			//GD.Print(GetMouseAndKeyState(GetInputEventIdentifyer(e)) + " " + eventModifierState);
+			EventDictionary["releasedPrevState"] = EventDictionary["releasedState"];
+			EventDictionary["releasedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(e)) < 0 && eventModifierState;
+			bool state = (bool)EventDictionary["releasedState"];
+			bool prevState = (bool)EventDictionary["releasedPrevState"];
+			if (!state && prevState){
+				return true;
 			}
 		}
 		return false;
