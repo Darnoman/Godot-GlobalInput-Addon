@@ -451,10 +451,8 @@ public partial class GlobalInputCSharp : Node
 				eventString = eventKey.AsText();
 				eventModifierMask = eventKey.GetModifiersMask();
 			}
-
 			if (eventType == null) return false; // exits if event is neither key nor mouse
 
-			
 			Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventString];
 			
 			// check modifier
@@ -470,6 +468,7 @@ public partial class GlobalInputCSharp : Node
 			EventDictionary["pressedPrevState"] = EventDictionary["pressedState"];
 			EventDictionary["pressedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(e)) < 0 && eventModifierState;
 			if ((bool)EventDictionary["pressedState"]){
+				
 				return true;
 			}
 			
@@ -536,7 +535,6 @@ public partial class GlobalInputCSharp : Node
 			KeycodeHelper keycodeHelper = new KeycodeHelper { Value = VkKeyScan(c)}; // get char's keycode
 			windowKeyCode = keycodeHelper.Low; // get the lowercase version
 		}
-		GD.Print(key + " " + windowKeyCode);
 		short keyState = GetMouseAndKeyState(windowKeyCode);
 		if (keyState < 0){
 			return true;
@@ -601,10 +599,10 @@ public partial class GlobalInputCSharp : Node
 			return MouseButtonIndex;
 		}
 		else if (e is InputEventKey eventKey){
-			string keycodeString = OS.GetKeycodeString(eventKey.PhysicalKeycode); // get the name of the key
+			string keycodeString = OS.GetKeycodeString(eventKey.PhysicalKeycode).Replace(" ", ""); // get the name of the key
 			if (keycodeString == ""){ // if there is no physical keycode
 				keycodeString = eventKey.AsText(); // get keycode label
-			} 
+			}
 			// get the window keycode base on the GodotKeyToWindowKey map and return it
 			int windowKeyCode = GodotKeyToWindowKey.ContainsKey(keycodeString) ? GodotKeyToWindowKey[keycodeString] : 0;
 			if (windowKeyCode == 0){
