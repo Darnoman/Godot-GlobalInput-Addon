@@ -154,7 +154,7 @@ public partial class GlobalInputCSharp : Node
 	/// </summary>
 	/// <param name="flag">The MouseEventFlags to imitate</param>
 	/// <param name="vector">The mouse position to do the event</param>
-	public void SetMouseEvent(MouseEventFlags flag, Vector2I? vector = null){
+	private void SetMouseEvent(MouseEventFlags flag, Vector2I? vector = null){
 		if (vector == null){ // if no position is given
 			vector = (Vector2I?)GetMousePosition(); // use current mouse position
 		}
@@ -172,7 +172,7 @@ public partial class GlobalInputCSharp : Node
 	/// <param name="scancode"></param>
 	/// <param name="keyFlag"></param>
 	/// <param name="extraInfo"></param>
-	public void SetKeyboardEvent(byte keycode, byte scancode, int keyFlag = 0, int extraInfo = 0){
+	private void SetKeyboardEvent(byte keycode, byte scancode, int keyFlag = 0, int extraInfo = 0){
 		keybd_event(keycode, scancode, keyFlag, extraInfo);
 	}
 
@@ -328,6 +328,15 @@ public partial class GlobalInputCSharp : Node
 	/// </summary>
 	public Dictionary ActionDictionary = new Dictionary();
 
+    public void SetMouseEvent(int eventFlag, Vector2I mousePosition)
+    {
+		mouse_event(eventFlag, mousePosition.X, mousePosition.Y, 0, 0);
+	}
+
+	public void SetKeyboardEvent(int keyFlag, int keycode = 0, int scancode = 0, int extraInfo = 0){
+		keybd_event((byte)keycode, (byte)scancode, keyFlag, extraInfo);
+	}
+
 	/// <summary>
 	/// Initializes ActionDictionary with all inputs from InputMap
 	/// </summary>
@@ -375,12 +384,6 @@ public partial class GlobalInputCSharp : Node
         InitializeActionDictionary();
     }
 
-
-    public override void _Process(double delta)
-    {
-        //GD.Print(ActionDictionary["test"]);
-    }
-
     /// <summary>
     /// Checks if any event from action is just pressed
     /// </summary>
@@ -388,8 +391,8 @@ public partial class GlobalInputCSharp : Node
     /// <returns>true if any events in action are just pressed else false</returns>
     public bool IsActionJustPressed(StringName action){
 		foreach(InputEvent e in InputMap.ActionGetEvents(action)){ // get all inputs within action
-			String eventType = null; // default to key
-			String eventString = null;
+			string eventType = null; // default to key
+			string eventString = null;
 			KeyModifierMask? eventModifierMask = null;
 			if (e is InputEventMouseButton eventMouseButton){
 				eventType = "MouseButton";
@@ -410,14 +413,13 @@ public partial class GlobalInputCSharp : Node
 			// check modifier
 			bool eventModifierState;
 			if (eventModifierMask > 0){
-				String eventModifierString = eventModifierMask.ToString().Replace("Mask", "");
+				string eventModifierString = eventModifierMask.ToString().Replace("Mask", "");
 				int eventModifierKeyCode = GodotKeyToWindowKey[eventModifierString];
 				eventModifierState = GetMouseAndKeyState(eventModifierKeyCode) < 0;
 			}
 			else{
 				eventModifierState = true;
 			}
-			//GD.Print(GetMouseAndKeyState(GetInputEventIdentifyer(e)) + " " + eventModifierState);
 			EventDictionary["clickedPrevState"] = EventDictionary["clickedState"];
 			EventDictionary["clickedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(e)) < 0 && eventModifierState;
 			bool state = (bool)EventDictionary["clickedState"];
@@ -436,8 +438,8 @@ public partial class GlobalInputCSharp : Node
 	/// <returns>true if any events in action are pressed else false</returns>
 	public bool IsActionPressed(StringName action){
 		foreach(InputEvent e in InputMap.ActionGetEvents(action)){ // get all inputs within action
-			String eventType = null; // default to key
-			String eventString = null;
+			string eventType = null; // default to key
+			string eventString = null;
 			KeyModifierMask? eventModifierMask = null;
 			if (e is InputEventMouseButton eventMouseButton){
 				eventType = "MouseButton";
@@ -458,14 +460,13 @@ public partial class GlobalInputCSharp : Node
 			// check modifier
 			bool eventModifierState;
 			if (eventModifierMask > 0){
-				String eventModifierString = eventModifierMask.ToString().Replace("Mask", "");
+				string eventModifierString = eventModifierMask.ToString().Replace("Mask", "");
 				int eventModifierKeyCode = GodotKeyToWindowKey[eventModifierString];
 				eventModifierState = GetMouseAndKeyState(eventModifierKeyCode) < 0;
 			}
 			else{
 				eventModifierState = true;
 			}
-			//GD.Print(GetMouseAndKeyState(GetInputEventIdentifyer(e)) + " " + eventModifierState);
 			EventDictionary["pressedPrevState"] = EventDictionary["pressedState"];
 			EventDictionary["pressedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(e)) < 0 && eventModifierState;
 			if ((bool)EventDictionary["pressedState"]){
@@ -483,8 +484,8 @@ public partial class GlobalInputCSharp : Node
 	/// <returns>true if any events in action are just release else false</returns>
 	public bool IsActionJustReleased(StringName action){
 		foreach(InputEvent e in InputMap.ActionGetEvents(action)){
-			String eventType = null; // default to key
-			String eventString = null;
+            string eventType = null; // default to key
+			string eventString = null;
 			KeyModifierMask? eventModifierMask = null;
 			if (e is InputEventMouseButton eventMouseButton){
 				eventType = "MouseButton";
@@ -505,14 +506,13 @@ public partial class GlobalInputCSharp : Node
 			// check modifier
 			bool eventModifierState;
 			if (eventModifierMask > 0){
-				String eventModifierString = eventModifierMask.ToString().Replace("Mask", "");
+				string eventModifierString = eventModifierMask.ToString().Replace("Mask", "");
 				int eventModifierKeyCode = GodotKeyToWindowKey[eventModifierString];
 				eventModifierState = GetMouseAndKeyState(eventModifierKeyCode) < 0;
 			}
 			else{
 				eventModifierState = true;
 			}
-			//GD.Print(GetMouseAndKeyState(GetInputEventIdentifyer(e)) + " " + eventModifierState);
 			EventDictionary["releasedPrevState"] = EventDictionary["releasedState"];
 			EventDictionary["releasedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(e)) < 0 && eventModifierState;
 			bool state = (bool)EventDictionary["releasedState"];
@@ -532,7 +532,7 @@ public partial class GlobalInputCSharp : Node
 	public bool IsKeyPressed(Key key){
 		int windowKeyCode = GodotKeyToWindowKey.ContainsKey(key.ToString()) ? GodotKeyToWindowKey[key.ToString()] : 0;
 		if (windowKeyCode == 0){ // if key is not within GodotKeyToWindowKey dict
-			char c = (Char)key; // turn keycode into a char
+			char c = (char)key; // turn keycode into a char
 			KeycodeHelper keycodeHelper = new KeycodeHelper { Value = VkKeyScan(c)}; // get char's keycode
 			windowKeyCode = keycodeHelper.Low; // get the lowercase version
 		}
@@ -553,10 +553,12 @@ public partial class GlobalInputCSharp : Node
 	/// <param name="positiveY"></param>
 	/// <returns></returns>
 	public Vector2 GetVector(StringName negativeX, StringName positiveX, StringName negativeY, StringName positiveY){
-		Vector2 inputVector = new Vector2();
-		inputVector.X = (IsActionPressed(positiveX) ? 1 : 0) - (IsActionPressed(negativeX) ? 1 : 0);
-		inputVector.Y = (IsActionPressed(positiveY) ? 1 : 0) - (IsActionPressed(negativeY) ? 1 : 0);
-		return inputVector;
+        Vector2 inputVector = new Vector2
+        {
+            X = (IsActionPressed(positiveX) ? 1 : 0) - (IsActionPressed(negativeX) ? 1 : 0),
+            Y = (IsActionPressed(positiveY) ? 1 : 0) - (IsActionPressed(negativeY) ? 1 : 0)
+        };
+        return inputVector;
 	}
 	
 	/// <summary>
