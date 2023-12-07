@@ -54,6 +54,10 @@ public partial class GlobalInputCSharp : Node
 	[DllImport("user32.dll", SetLastError = true)]
 	private static extern uint SendInput(uint nInputs, Input[] pInputs, int cbSize);
 
+
+	[DllImport("user32.dll")]
+	public static extern uint MapVirtualKey(uint uCode, uint uMapType);
+
 	[DllImport("user32.dll")]
 	private static extern IntPtr GetMessageExtraInfo();
 
@@ -165,16 +169,17 @@ public partial class GlobalInputCSharp : Node
 	
 	#region Keyboard Functions
 	// Keyboard Functions
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <param name="keycode"></param>
-	/// <param name="scancode"></param>
-	/// <param name="keyFlag"></param>
-	/// <param name="extraInfo"></param>
-	private void SetKeyboardEvent(byte keycode, byte scancode, int keyFlag = 0, int extraInfo = 0){
-		keybd_event(keycode, scancode, keyFlag, extraInfo);
-	}
+	// /// <summary>
+	// /// 
+	// /// </summary>
+	// /// <param name="keycode"></param>
+	// /// <param name="scancode"></param>
+	// /// <param name="keyFlag"></param>
+	// /// <param name="extraInfo"></param>
+	// private void SetKeyboardEvent(byte keycode, byte scancode, int keyFlag = 0, int extraInfo = 0){
+	// 	GD.Print("TEST2");
+	// 	keybd_event(keycode, scancode, keyFlag, extraInfo);
+	// }
 
 	/// <summary>
 	/// Returns the state of the keycode
@@ -328,13 +333,42 @@ public partial class GlobalInputCSharp : Node
 	/// </summary>
 	public Dictionary ActionDictionary = new Dictionary();
 
-    public void SetMouseEvent(int eventFlag, Vector2I mousePosition)
+    public void SetMouseEvent(int eventFlag, Vector2I mousePosition, int scroll)
     {
-		mouse_event(eventFlag, mousePosition.X, mousePosition.Y, 0, 0);
+		Input[] inputs = new Input[] {
+			new Input {
+				type = (int) InputType.Mouse,
+				u = new InputUnion {
+					mi = new MouseInput {
+						dx = mousePosition.X,
+						dy = mousePosition.Y,
+						mouseData = (uint)scroll,
+						dwFlags = (uint)eventFlag,
+						dwExtraInfo = GetMessageExtraInfo()
+					}
+				}
+			}
+		};
+		
+		SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
 	}
 
-	public void SetKeyboardEvent(int keyFlag, int keycode = 0, int scancode = 0, int extraInfo = 0){
-		keybd_event((byte)keycode, (byte)scancode, keyFlag, extraInfo);
+	public void SetKeyboardEvent(int keyFlag, int keycode = 0, int scancode = 0){
+		Input[] inputs = new Input[] {
+			new Input {
+				type = (int)InputType.Keyboard,
+				u = new InputUnion {
+					ki = new KeyboardInput {
+						wVk = (ushort)keycode,
+						wScan =(ushort) scancode,
+						dwFlags = (uint)keyFlag,
+						dwExtraInfo = GetMessageExtraInfo()
+					}
+				}
+			}
+		};
+
+		SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
 	}
 
 	/// <summary>
@@ -616,5 +650,23 @@ public partial class GlobalInputCSharp : Node
 		}
 		return 0;
 	}
-	#endregion
+
+	[Flags]
+	public enum MapVirtualKeyTypes : int {
+		MAPVK_VK_TO_VSC = 0x00,
+		MAPVK_VSC_TO_VK = 0x01,
+		MAPVK_VK_TO_CHAR = 0x02,
+		MAPVK_VSC_TO_VK_EX = 0x03,
+		MAPVK_VK_TO_VSC_EX = 0x04
+	}
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="code"></param>
+	/// <param name="mapType"></param>
+	/// <returns></returns>
+	public int MapVirtualKey(int code, int mapType){
+		return (int)MapVirtualKey((uint)code, (uint)mapType);
+	}
+    #endregion
 }

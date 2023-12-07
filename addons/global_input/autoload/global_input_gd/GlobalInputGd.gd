@@ -58,6 +58,13 @@ enum KeyEventFlags{
 	Scancode = 0x0008
 	}
 
+enum MapVirtualKeyTypes{
+	VkToScn = 0x00,
+	ScnToVk = 0x01,
+	VkToChar = 0x02,
+	ScnToVkEx = 0x03,
+	VkToScnEx = 0x04,
+}
 # godot keycode to window keycodes
 var godot_key_to_window_key: Dictionary
 var godot_mouse_to_window_mouse: Dictionary
@@ -81,17 +88,23 @@ func set_mouse_position(position:Vector2) -> void:
 	global_input_csharp.SetMousePosition(position)
 
 ## Imitates mouse clicks and movement.
-func set_mouse_event(event_flag:MouseEventFlags, mouse_position:Vector2 = get_mouse_position()) -> void:
-	global_input_csharp.SetMouseEvent(event_flag, mouse_position)
+func set_mouse_event(event_flag:MouseEventFlags, mouse_position:Vector2 = Vector2(0,0), scroll:int = 0) -> void:
+	global_input_csharp.SetMouseEvent(event_flag, mouse_position, scroll)
 #endregion
 
 #region Keyboard Functions
 ## Imitates keyboard inputs.
-func set_keyboard_event(event_flag:KeyEventFlags, keycode:int = 0, scancode:int = 0, extra_info:int = 0):
-	global_input_csharp.SetKeyboardEvent(keycode, scancode, event_flag, extra_info)
+func set_keyboard_event(event_flag:KeyEventFlags, keycode:int = 0, scancode:int = 0) -> void:
+	if scancode == 0:
+		scancode = GlobalInput.map_virtual_key(keycode)
+	global_input_csharp.SetKeyboardEvent(event_flag, keycode, scancode)
 #endregion
 
 #region Godot Section
+
+func map_virtual_key(code: int, map_type:MapVirtualKeyTypes = MapVirtualKeyTypes.VkToScn) -> int:
+	return global_input_csharp.MapVirtualKey(code, map_type)
+
 ## Is similar to Input.is_action_just_pressed().
 func is_action_just_pressed(action:StringName) -> bool:
 	return global_input_csharp.IsActionJustPressed(action)
