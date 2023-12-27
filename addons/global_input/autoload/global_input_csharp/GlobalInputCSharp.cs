@@ -269,6 +269,7 @@ public partial class GlobalInputCSharp : Node
 		{Key.Z.ToString(), 0x5A},
 		// window key
 		{"Windows", 0x5B},
+		{"Meta", 0x5B},
 		// numberpad numbers
 		{Key.Kp0.ToString(), 0x60},
 		{Key.Kp1.ToString(), 0x61},
@@ -445,15 +446,8 @@ public partial class GlobalInputCSharp : Node
 			Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventString];
 			
 			// check modifier
-			bool eventModifierState;
-			if (eventModifierMask > 0){
-				string eventModifierString = eventModifierMask.ToString().Replace("Mask", "");
-				int eventModifierKeyCode = GodotKeyToWindowKey[eventModifierString];
-				eventModifierState = GetMouseAndKeyState(eventModifierKeyCode) < 0;
-			}
-			else{
-				eventModifierState = true;
-			}
+			bool eventModifierState = IsEventModifierPressed((KeyModifierMask)eventModifierMask);
+
 			EventDictionary["clickedPrevState"] = EventDictionary["clickedState"];
 			EventDictionary["clickedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(e)) < 0 && eventModifierState;
 			bool state = (bool)EventDictionary["clickedState"];
@@ -490,15 +484,8 @@ public partial class GlobalInputCSharp : Node
 			Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventString];
 			
 			// check modifier
-			bool eventModifierState;
-			if (eventModifierMask > 0){
-				string eventModifierString = eventModifierMask.ToString().Replace("Mask", "");
-				int eventModifierKeyCode = GodotKeyToWindowKey[eventModifierString];
-				eventModifierState = GetMouseAndKeyState(eventModifierKeyCode) < 0;
-			}
-			else{
-				eventModifierState = true;
-			}
+			bool eventModifierState = IsEventModifierPressed((KeyModifierMask)eventModifierMask);
+
 			EventDictionary["pressedPrevState"] = EventDictionary["pressedState"];
 			EventDictionary["pressedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(e)) < 0 && eventModifierState;
 			if ((bool)EventDictionary["pressedState"]){
@@ -537,15 +524,8 @@ public partial class GlobalInputCSharp : Node
 			Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventString];
 			
 			// check modifier
-			bool eventModifierState;
-			if (eventModifierMask > 0){
-				string eventModifierString = eventModifierMask.ToString().Replace("Mask", "");
-				int eventModifierKeyCode = GodotKeyToWindowKey[eventModifierString];
-				eventModifierState = GetMouseAndKeyState(eventModifierKeyCode) < 0;
-			}
-			else{
-				eventModifierState = true;
-			}
+			bool eventModifierState = IsEventModifierPressed((KeyModifierMask)eventModifierMask);
+
 			EventDictionary["releasedPrevState"] = EventDictionary["releasedState"];
 			EventDictionary["releasedState"] = GetMouseAndKeyState(GetInputEventIdentifyer(e)) < 0 && eventModifierState;
 			bool state = (bool)EventDictionary["releasedState"];
@@ -555,6 +535,22 @@ public partial class GlobalInputCSharp : Node
 			}
 		}
 		return false;
+	}
+
+	public bool IsEventModifierPressed(KeyModifierMask eventModifierMask){
+		// check modifier
+		bool eventModifierState = true;
+		if (eventModifierMask > 0){
+			string eventModifierString = eventModifierMask.ToString().Replace("Mask", "");
+			string[] eventModiferArray = eventModifierString.Split(", ");
+			foreach(string eventModifier in eventModiferArray){ // if there is more than one modifier
+				int eventModifierKeyCode = GodotKeyToWindowKey[eventModifier];
+				if(GetMouseAndKeyState(eventModifierKeyCode) >= 0){ // if any of the modifier is false
+					eventModifierState = false; // set it to false
+				}
+			}
+		}
+		return eventModifierState;
 	}
 
 	/// <summary>
