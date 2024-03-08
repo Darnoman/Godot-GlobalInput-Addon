@@ -2,7 +2,7 @@
 #01. tool
 
 #02. class_name
-class_name GlobalInputGd
+
 #03. extends
 extends Node
 #endregion
@@ -10,7 +10,7 @@ extends Node
 #region Documentation
 #-----------------------------------------------------------
 #04. # docstring
-## This is a godot script version of GlobalInputCSharp.
+## hoge
 #-----------------------------------------------------------
 #endregion
 
@@ -21,18 +21,6 @@ extends Node
 #-----------------------------------------------------------
 #06. enums
 #-----------------------------------------------------------
-
-#-----------------------------------------------------------
-#07. exports
-#-----------------------------------------------------------
-
-#-----------------------------------------------------------
-#08. variables
-#-----------------------------------------------------------
-@onready var global_input_csharp_packed_scene = preload("res://addons/global_input/autoload/global_input_csharp/GlobalInputCSharp.tscn")
-var global_input_csharp;
-
-## Test
 enum MouseEventFlags{
 	Absolute = 0x8000,
 	HWheel = 0x01000,
@@ -65,10 +53,16 @@ enum MapVirtualKeyTypes{
 	ScnToVkEx = 0x03,
 	VkToScnEx = 0x04,
 }
+#-----------------------------------------------------------
+#08. variables
+#-----------------------------------------------------------
+@onready var global_input_csharp_packed_scene = preload("res://addons/global_input/autoloads/global_input_csharp/GlobalInputCSharp.tscn")
+var global_input_csharp; # to get this in C# use GetNode("/root/GlobalInput") 
+						 # or if you want the C# version of this node GetNode("/root/GlobalInput/GlobalInputCSharp")
+
 # godot keycode to window keycodes
 var godot_key_to_window_key: Dictionary
 var godot_mouse_to_window_mouse: Dictionary
-
 #-----------------------------------------------------------
 #09. methods
 #-----------------------------------------------------------
@@ -76,7 +70,7 @@ func _ready() -> void:
 	_initialize_global_input_c_sharp()
 	pass
 
-#region Mouse Functions
+#region General Mouse and Keyboard Functions
 
 ## Returns the mouse position relative to the top left corner of the primary screen.
 func get_mouse_position() -> Vector2:
@@ -90,9 +84,7 @@ func set_mouse_position(position:Vector2) -> void:
 ## Imitates mouse clicks and movement.
 func set_mouse_event(event_flag:MouseEventFlags, mouse_position:Vector2 = Vector2(0,0), scroll:int = 0) -> void:
 	global_input_csharp.SetMouseEvent(event_flag, mouse_position, scroll)
-#endregion
 
-#region Keyboard Functions
 ## Imitates keyboard inputs.
 func set_keyboard_event(event_flag:KeyEventFlags, keycode:int = 0, scancode:int = 0) -> void:
 	if scancode == 0:
@@ -141,4 +133,3 @@ func _initialize_global_input_c_sharp():
 #-----------------------------------------------------------
 #10. signal methods
 #-----------------------------------------------------------
-#endregion

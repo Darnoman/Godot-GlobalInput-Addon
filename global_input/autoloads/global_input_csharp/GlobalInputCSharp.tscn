@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dsxny04n01a2n"]
+
+[ext_resource type="Script" path="res://addons/global_input/autoloads/global_input_csharp/GlobalInputCSharp.cs" id="1_dbl2o"]
+
+[node name="GlobalInputCSharp" type="Node"]
+script = ExtResource("1_dbl2o")
