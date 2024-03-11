@@ -107,7 +107,7 @@ func is_action_pressed(action:StringName) -> bool:
 
 ## Is similar to Input.is_action_just_released().
 func is_action_just_released(action:StringName) -> bool:
-	return global_input_csharp.IsActionJustRelease(action)
+	return global_input_csharp.IsActionJustReleased(action)
 
 ## Is similar to Input.get_vector().
 func get_vector(negative_x:StringName, positive_x:StringName, negative_y:StringName, positive_y:StringName) -> Vector2:
