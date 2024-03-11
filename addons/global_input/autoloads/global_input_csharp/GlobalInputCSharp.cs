@@ -451,7 +451,7 @@ public partial class GlobalInputCSharp : Node
 			bool state = (bool)EventDictionary["pressedState"];
 			bool prevState = (bool)EventDictionary["pressedPrevState"];
 
-			if (state) {
+			if (state && prevState) {
 				return true;
 			}
 		}
