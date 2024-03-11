@@ -6,6 +6,7 @@ using System;
 public partial class global_input : EditorPlugin
 {
 	private const string GlobalInputGdAutoloadName = "GlobalInput";
+	
 	public override void _EnterTree()
 	{
 		// Initialization of the plugin goes here.

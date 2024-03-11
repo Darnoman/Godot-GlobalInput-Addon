@@ -14,8 +14,16 @@ public partial class CharacterBody2D : Godot.CharacterBody2D
     public override void _PhysicsProcess(double delta)
 	{
 
+		if (GlobalInput.IsActionJustPressed("mouse_left")){
+			GD.Print("CLICKED");
+		}
+		
 		if (GlobalInput.IsActionPressed("mouse_left")){
-			GD.Print(GlobalInput.GetMousePosition());
+			GD.Print("PRESSED at " + GlobalInput.GetMousePosition());
+		}
+
+		if (GlobalInput.IsActionJustReleased("mouse_left")){
+			GD.Print("RELEASED");
 		}
 		Vector2 velocity = Velocity;
 		

@@ -274,7 +274,7 @@ public partial class GlobalInputCSharp : Node
 				{Key.F10.ToString(), 0x79},
 				{Key.F11.ToString(), 0x7A},
 				{Key.F12.ToString(), 0x7B},
-    				{Key.F13.ToString(), 0x7C},
+    			{Key.F13.ToString(), 0x7C},
 				{Key.F14.ToString(), 0x7D},
 				{Key.F15.ToString(), 0x7E},
 				{Key.F16.ToString(), 0x7F},
@@ -359,6 +359,7 @@ public partial class GlobalInputCSharp : Node
 						((Dictionary)ActionDictionary[action]).Add(eventKey.AsText(), new Dictionary<string, bool>
 						{
 							{"pressedState", false},
+							{"pressedPrevState", false},
 							{"justPressedState", false},
 							{"justPressedPrevState", false},
 							{"justReleasedState", false},
@@ -403,13 +404,13 @@ public partial class GlobalInputCSharp : Node
 				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventString];
 	
 				bool eventModifierState = IsEventModifierPressed((KeyModifierMask) eventModifierMask);
-
+				
 				EventDictionary["justPressedPrevState"] = EventDictionary["justPressedState"];
 				EventDictionary["justPressedState"] = GetMouseAndKeyState(GetInputEventIdentifier(e)) < 0 && eventModifierState;
 				bool state = (bool)EventDictionary["justPressedState"];
 				bool prevState = (bool)EventDictionary["justPressedPrevState"];
-
 				if (state && !prevState) {
+
 					return true;
 				}
 			}
@@ -445,10 +446,10 @@ public partial class GlobalInputCSharp : Node
 
 			bool eventModifierState = IsEventModifierPressed((KeyModifierMask) eventModifierMask);
 
-			EventDictionary["justPressedPrevState"] = EventDictionary["justPressedState"];
-			EventDictionary["justPressedState"] = GetMouseAndKeyState(GetInputEventIdentifier(e)) < 0 && eventModifierState;
-			bool state = (bool)EventDictionary["justPressedState"];
-			bool prevState = (bool)EventDictionary["justPressedPrevState"];
+			EventDictionary["pressedPrevState"] = EventDictionary["pressedState"];
+			EventDictionary["pressedState"] = GetMouseAndKeyState(GetInputEventIdentifier(e)) < 0 && eventModifierState;
+			bool state = (bool)EventDictionary["pressedState"];
+			bool prevState = (bool)EventDictionary["pressedPrevState"];
 
 			if (state) {
 				return true;
@@ -486,11 +487,10 @@ public partial class GlobalInputCSharp : Node
 	
 				bool eventModifierState = IsEventModifierPressed((KeyModifierMask) eventModifierMask);
 
-				EventDictionary["justPressedPrevState"] = EventDictionary["justPressedState"];
-				EventDictionary["justPressedState"] = GetMouseAndKeyState(GetInputEventIdentifier(e)) < 0 && eventModifierState;
-				bool state = (bool)EventDictionary["justPressedState"];
-				bool prevState = (bool)EventDictionary["justPressedPrevState"];
-
+				EventDictionary["justReleasedPrevState"] = EventDictionary["justReleasedState"];
+				EventDictionary["justReleasedState"] = GetMouseAndKeyState(GetInputEventIdentifier(e)) < 0 && eventModifierState;
+				bool state = (bool)EventDictionary["justReleasedState"];
+				bool prevState = (bool)EventDictionary["justReleasedPrevState"];
 				if (!state && prevState) {
 					return true;
 				}
