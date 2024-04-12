@@ -54,14 +54,14 @@ public partial class GlobalInputCSharp : Node
 			}
 
 			[Flags]
-			private enum InputType {
+			public enum InputType {
 				Mouse = 0,
 				Keyboard = 1,
 				Hardware = 2,
 			}
 
 			[Flags]
-			public enum MouseEventFlags{
+			public enum MouseEventFlags {
 				Absolute = 0x8000,
 				HWheel = 0x01000,
 				Move = 0x0001,
@@ -95,7 +95,7 @@ public partial class GlobalInputCSharp : Node
 			}
 
 			[Flags]
-			public enum KeyEventFLags {
+			public enum KeyEventFlags {
 				KeyDown = 0x0000,
 				ExtendedKey = 0x0001,
 				KeyUp = 0x0002,
@@ -171,7 +171,7 @@ public partial class GlobalInputCSharp : Node
 			/// <summary>
 			/// Maps Godot key codes to Windows key codes
 			/// </summary>
-			Dictionary<string, int> GodotKeyToWindowKey = new() {
+			public Dictionary<string, int> GodotKeyToWindowKey = new() {
 				// none
 				{Key.None.ToString(), 0x00},
 				// special
@@ -296,7 +296,7 @@ public partial class GlobalInputCSharp : Node
 			/// <summary>
 			/// Maps Godot mouse buttons to Window's virtual keycodes
 			/// </summary>
-			Dictionary<string, int> GodotMouseToWindowMouse = new() {
+			public Dictionary<string, int> GodotMouseToWindowMouse = new() {
 				{MouseButton.Left.ToString().ToLower(), 0x01},
 				{MouseButton.Right.ToString().ToLower(), 0x02},
 				{MouseButton.Middle.ToString().ToLower(), 0x04},
@@ -331,6 +331,73 @@ public partial class GlobalInputCSharp : Node
 		public int GetMouseAndKeyState(int keycode) {
 			return GetKeyState(keycode);
 		}
+
+		private Input[] CreateKeyboardInput(KeyEventFlags flag, int keycode, int scancode = 0) {
+			Input[] inputs = new Input[] {
+				new Input {
+					type = (int)InputType.Keyboard,
+					u = new InputUnion {
+						ki = new KeyboardInput {
+							wVk = (ushort)keycode,
+							wScan = (ushort)scancode,
+							dwFlags = (uint)(flag),
+							dwExtraInfo = GetMessageExtraInfo()
+						}
+					}
+				}
+			};
+			return inputs;
+		}
+		private Input[] CreateMouseInput(MouseEventFlags flags, Vector2? mouseOffset = null) {
+			if (mouseOffset == null) {
+				mouseOffset = Vector2.Zero;
+			}
+			Input[] inputs = new Input[] {
+				new Input {
+					type = (int)InputType.Mouse,
+					u = new InputUnion {
+						mi = new MouseInput {
+							dwFlags = (uint)flags,
+							dx = (int)((Vector2)mouseOffset).X,
+							dy = (int)((Vector2)mouseOffset).Y,
+							dwExtraInfo = GetMessageExtraInfo(),
+						}
+					}
+				}
+			};
+			return inputs;
+		}
+		
+		/// <summary>
+		/// Sends input based on the specified input type and flags.
+		/// </summary>
+		/// <param name="type">The type of input to send.</param>
+		/// <param name="flags">The flags associated with the input.</param>
+		/// <param name="parameters">Optional parameters for the input (default is null).
+		/// Keyboard: (KeyEventFlags flag, int keycode, int scancode = 0)
+		/// Mouse: (MouseEventFlags flags, Vector2? mouseOffset = null)</param>
+		public int SendInput(int type, Array<Variant> parameters) {
+			if (type == (int)InputType.Keyboard) {
+				KeyEventFlags flag = (KeyEventFlags)((int)parameters[0]);
+				int keycode = (int)parameters[1];
+				int scancode = 0;
+				if (parameters.Count > 2) {
+					scancode = (int)parameters[2];
+					flag = flag | KeyEventFlags.Scancode;
+				}
+				GD.Print(keycode," ", scancode);
+				Input[] inputs = CreateKeyboardInput(flag, keycode, scancode);
+				return (int)SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
+			}
+			else if (type == (int)InputType.Mouse) {
+				MouseEventFlags mouseFlags = (MouseEventFlags)((int)parameters[0]);
+				Vector2? mouseOffset = (Vector2?)parameters[1];
+				Input[] inputs = CreateMouseInput(mouseFlags, mouseOffset);
+				return (int)SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(Input)));
+			}
+			return 0;
+		}
+	
 	#endregion
 
 	public Dictionary ActionDictionary = new Dictionary();

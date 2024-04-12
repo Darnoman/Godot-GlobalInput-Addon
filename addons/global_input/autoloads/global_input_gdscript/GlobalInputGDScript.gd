@@ -21,7 +21,12 @@ extends Node
 #-----------------------------------------------------------
 #06. enums
 #-----------------------------------------------------------
-enum MouseEventFlags{
+enum InputType {
+	Mouse = 0,
+	Keyboard = 1
+}
+
+enum MouseEventFlags {
 	Absolute = 0x8000,
 	HWheel = 0x01000,
 	Move = 0x0001,
@@ -38,7 +43,7 @@ enum MouseEventFlags{
 	XUp = 0x0100
 }
 
-enum KeyEventFlags{
+enum KeyEventFlags {
 	KeyDown = 0x0000,
 	ExtendedKey = 0x0001,
 	KeyUp = 0x0002,
@@ -46,7 +51,7 @@ enum KeyEventFlags{
 	Scancode = 0x0008
 	}
 
-enum MapVirtualKeyTypes{
+enum MapVirtualKeyTypes {
 	VkToScn = 0x00,
 	ScnToVk = 0x01,
 	VkToChar = 0x02,
@@ -81,15 +86,11 @@ func get_mouse_position() -> Vector2:
 func set_mouse_position(position:Vector2) -> void:
 	global_input_csharp.SetMousePosition(position)
 
-## Imitates mouse clicks and movement.
-func set_mouse_event(event_flag:MouseEventFlags, mouse_position:Vector2 = Vector2(0,0), scroll:int = 0) -> void:
-	global_input_csharp.SetMouseEvent(event_flag, mouse_position, scroll)
-
 ## Imitates keyboard inputs.
-func set_keyboard_event(event_flag:KeyEventFlags, keycode:int = 0, scancode:int = 0) -> void:
-	if scancode == 0:
-		scancode = GlobalInput.map_virtual_key(keycode)
-	global_input_csharp.SetKeyboardEvent(event_flag, keycode, scancode)
+## Keyboard parameters: (KeyEventFlags flag, int keycode, int scancode = 0)
+## Mouse parameters: (MouseEventFlags flags, Vector2? mouseOffset = null)
+func send_input(type: InputType, parameters: Array) -> int:
+	return global_input_csharp.SendInput(type, parameters)
 #endregion
 
 #region Godot Section
