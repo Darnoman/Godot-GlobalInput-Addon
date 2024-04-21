@@ -258,9 +258,9 @@ public partial class GlobalInputCSharp : Node
 				// nubmerpad operators
 				{Key.KpMultiply.ToString(), 0x6A},
 				{Key.KpAdd.ToString(), 0x6B},
-				{Key.KpSubtract.ToString(), 0x6C},
-				{Key.KpPeriod.ToString(), 0x6D},
-				{Key.KpDivide.ToString(), 0x6E},
+				{Key.KpSubtract.ToString(), 0x6D},
+				{Key.KpPeriod.ToString(), 0x6E},
+				{Key.KpDivide.ToString(), 0x6F},
 				// f-keys
 				{Key.F1.ToString(), 0x70},
 				{Key.F2.ToString(), 0x71},
