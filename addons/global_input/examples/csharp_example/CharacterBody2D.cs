@@ -17,10 +17,6 @@ public partial class CharacterBody2D : Godot.CharacterBody2D
 		if (GlobalInput.IsActionJustPressed("mouse_left")){
 			GD.Print("CLICKED");
 		}
-		
-		if (GlobalInput.IsActionPressed("mouse_left")){
-			GD.Print("PRESSED at " + GlobalInput.GetMousePosition());
-		}
 
 		if (GlobalInput.IsActionJustReleased("mouse_left")){
 			GD.Print("RELEASED");
