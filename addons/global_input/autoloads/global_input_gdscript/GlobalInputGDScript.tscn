@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://b8w0xmrjlbj5"]
-
-[ext_resource type="Script" path="res://addons/global_input/autoloads/global_input_gdscript/GlobalInputGDScript.gd" id="1_4piok"]
-
-[node name="GlobalInputGdScript" type="Node"]
-script = ExtResource("1_4piok")
