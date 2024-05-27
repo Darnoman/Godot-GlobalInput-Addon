@@ -401,6 +401,7 @@ public partial class GlobalInputCSharp : Node
 	#endregion
 
 	public Dictionary ActionDictionary = new Dictionary();
+	private string OverallEventStateName = "Overall";
 
 	/// <summary>
 	/// Initialize the action dictionary with actions from the InputMap and their corresponding input events.
@@ -434,6 +435,18 @@ public partial class GlobalInputCSharp : Node
 						});
 						break;
 				}
+
+				if (!((Dictionary)ActionDictionary[action]).ContainsKey(OverallEventStateName)) {
+					((Dictionary)ActionDictionary[action]).Add(OverallEventStateName, new Dictionary<string, bool>
+					{
+						{"pressedState", false},
+						{"pressedPrevState", false},
+						{"justPressedState", false},
+						{"justPressedPrevState", false},
+						{"justReleasedState", false},
+						{"justReleasedPrevState", false},
+					});
+				}
 			}
 		}
 	}
@@ -449,39 +462,14 @@ public partial class GlobalInputCSharp : Node
 	/// <param name="action">The name of the action to check.</param>
 	/// <returns>True if the action has just been pressed, false otherwise.</returns>
 	public bool IsActionJustPressed(StringName action) {
-			foreach(InputEvent e in InputMap.ActionGetEvents(action)) {
-				string eventType = null;
-				string eventString = null;
-				KeyModifierMask? eventModifierMask = null; 
-	
-				switch (e) {
-					case InputEventMouseButton eventMouseButton:
-						eventType = "MouseButton";
-						eventString = eventMouseButton.ButtonIndex.ToString();
-						eventModifierMask = eventMouseButton.GetModifiersMask(); 
-						break;
-					case InputEventKey eventKey:
-						eventType = "Key";
-						eventString = eventKey.AsText();
-						eventModifierMask = eventKey.GetModifiersMask(); 
-						break;
-				}
-				if (eventType == null) return false; // exits if event is neither a mouse button nor a key
-	
-				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventString];
-	
-				bool eventModifierState = IsEventModifierPressed((KeyModifierMask) eventModifierMask);
-				
-				EventDictionary["justPressedPrevState"] = EventDictionary["justPressedState"];
-				EventDictionary["justPressedState"] = GetMouseAndKeyState(GetInputEventIdentifier(e)) < 0 && eventModifierState;
-				bool state = (bool)EventDictionary["justPressedState"];
-				bool prevState = (bool)EventDictionary["justPressedPrevState"];
-				if (state && !prevState) {
-
-					return true;
-				}
-			}
-			return false;
+		string stateString = "justPressedState";
+        string prevStateString = "justPressedPrevState";
+        UpdateAction(action, stateString, prevStateString);
+        Dictionary<string, bool> overallEventStateDictionary = (Dictionary<string, bool>)((Dictionary)ActionDictionary[action])[OverallEventStateName];
+        bool prevState = overallEventStateDictionary[prevStateString];
+        bool state = overallEventStateDictionary[stateString];
+        if (!prevState && state) return true;
+        return false;
 	}
 
 	/// <summary>
@@ -490,39 +478,14 @@ public partial class GlobalInputCSharp : Node
 	/// <param name="action">The name of the action to check.</param>
 	/// <returns>True if the action is currently pressed, false otherwise.</returns>
 	public bool IsActionPressed(StringName action) {
-		foreach(InputEvent e in InputMap.ActionGetEvents(action)) {
-			string eventType = null;
-			string eventString = null;
-			KeyModifierMask? eventModifierMask = null; 
-
-			switch (e) {
-				case InputEventMouseButton eventMouseButton:
-					eventType = "MouseButton";
-					eventString = eventMouseButton.ButtonIndex.ToString();
-					eventModifierMask = eventMouseButton.GetModifiersMask(); 
-					break;
-				case InputEventKey eventKey:
-					eventType = "Key";
-					eventString = eventKey.AsText();
-					eventModifierMask = eventKey.GetModifiersMask(); 
-					break;
-			}
-			if (eventType == null) return false; // exits if event is neither a mouse button nor a key
-
-			Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventString];
-
-			bool eventModifierState = IsEventModifierPressed((KeyModifierMask) eventModifierMask);
-
-			EventDictionary["pressedPrevState"] = EventDictionary["pressedState"];
-			EventDictionary["pressedState"] = GetMouseAndKeyState(GetInputEventIdentifier(e)) < 0 && eventModifierState;
-			bool state = (bool)EventDictionary["pressedState"];
-			bool prevState = (bool)EventDictionary["pressedPrevState"];
-
-			if (state && prevState) {
-				return true;
-			}
-		}
-		return false;
+		string stateString = "pressedState";
+        string prevStateString = "pressedPrevState";
+        UpdateAction(action, stateString, prevStateString);
+        Dictionary<string, bool> overallEventStateDictionary = (Dictionary<string, bool>)((Dictionary)ActionDictionary[action])[OverallEventStateName];
+        bool prevState = overallEventStateDictionary[prevStateString];
+        bool state = overallEventStateDictionary[stateString];
+        if (prevState && state) return true;
+        return false;
 	}
 
 	/// <summary>
@@ -531,38 +494,14 @@ public partial class GlobalInputCSharp : Node
 	/// <param name="action">The name of the action to be checked.</param>
 	/// <returns>True if the action has just been released, otherwise returns false.</returns>
 	public bool IsActionJustReleased(StringName action) {
-		foreach(InputEvent e in InputMap.ActionGetEvents(action)) {
-				string eventType = null;
-				string eventString = null;
-				KeyModifierMask? eventModifierMask = null; 
-	
-				switch (e) {
-					case InputEventMouseButton eventMouseButton:
-						eventType = "MouseButton";
-						eventString = eventMouseButton.ButtonIndex.ToString();
-						eventModifierMask = eventMouseButton.GetModifiersMask(); 
-						break;
-					case InputEventKey eventKey:
-						eventType = "Key";
-						eventString = eventKey.AsText();
-						eventModifierMask = eventKey.GetModifiersMask(); 
-						break;
-				}
-				if (eventType == null) return false; // exits if event is neither a mouse button nor a key
-	
-				Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventString];
-	
-				bool eventModifierState = IsEventModifierPressed((KeyModifierMask) eventModifierMask);
-
-				EventDictionary["justReleasedPrevState"] = EventDictionary["justReleasedState"];
-				EventDictionary["justReleasedState"] = GetMouseAndKeyState(GetInputEventIdentifier(e)) < 0 && eventModifierState;
-				bool state = (bool)EventDictionary["justReleasedState"];
-				bool prevState = (bool)EventDictionary["justReleasedPrevState"];
-				if (!state && prevState) {
-					return true;
-				}
-			}
-			return false;
+		string stateString = "justReleasedState";
+        string prevStateString = "justReleasedPrevState";
+        UpdateAction(action, stateString, prevStateString);
+        Dictionary<string, bool> overallEventStateDictionary = (Dictionary<string, bool>)((Dictionary)ActionDictionary[action])[OverallEventStateName];
+        bool prevState = overallEventStateDictionary[prevStateString];
+        bool state = overallEventStateDictionary[stateString];
+        if (prevState && !state) return true;
+        return false;
 	}
 
 	/// <summary>
@@ -614,6 +553,85 @@ public partial class GlobalInputCSharp : Node
 		return false;
 	}
 
+	public void UpdateAction(string action, string stateString, string prevStateString)
+	{
+		foreach(InputEvent e in InputMap.ActionGetEvents(action)) {
+			string eventType = null;
+			string eventString = null;
+			KeyModifierMask? eventModifierMask = null; 
+
+			switch (e) {
+				case InputEventMouseButton eventMouseButton:
+					eventType = "MouseButton";
+					eventString = eventMouseButton.ButtonIndex.ToString();
+					eventModifierMask = eventMouseButton.GetModifiersMask(); 
+					break;
+				case InputEventKey eventKey:
+					eventType = "Key";
+					eventString = eventKey.AsText();
+					eventModifierMask = eventKey.GetModifiersMask(); 
+					break;
+			}
+			if (eventType == null) continue; // exits if event is neither a mouse button nor a key
+
+			Dictionary EventDictionary = (Dictionary)((Dictionary)ActionDictionary[action])[eventString];
+
+			bool eventModifierState = IsEventModifierPressed((KeyModifierMask) eventModifierMask);
+
+			EventDictionary[prevStateString] = EventDictionary[stateString];
+			EventDictionary[stateString] = GetMouseAndKeyState(GetInputEventIdentifier(e)) < 0 && eventModifierState;
+
+			UpdateOverallEventDictionary(action);
+		}
+	}
+
+	private void UpdateOverallEventDictionary(string actionName)
+    {
+        Dictionary<string, bool> overallEventStateDictionary = (Dictionary<string, bool>)((Dictionary)ActionDictionary[actionName])[OverallEventStateName];
+
+        bool justPressedPrevState = false;
+        bool justPressedState = false;
+        bool pressedPrevState = false;
+        bool pressedState = false;
+        bool justReleasedPrevState = false;
+        bool justReleasedState = false;
+
+        foreach (InputEvent e in InputMap.ActionGetEvents(actionName))
+        {
+            string eventType = null;
+			string eventString = null;
+			KeyModifierMask? eventModifierMask = null; 
+
+			switch (e) {
+				case InputEventMouseButton eventMouseButton:
+					eventType = "MouseButton";
+					eventString = eventMouseButton.ButtonIndex.ToString();
+					eventModifierMask = eventMouseButton.GetModifiersMask(); 
+					break;
+				case InputEventKey eventKey:
+					eventType = "Key";
+					eventString = eventKey.AsText();
+					eventModifierMask = eventKey.GetModifiersMask(); 
+					break;
+			}
+			if (eventType == null) continue; // exits if event is neither a mouse button nor a key
+
+            Dictionary<string, bool> eventStateDictionary = (Dictionary<string, bool>)((Dictionary)ActionDictionary[actionName])[eventString];
+            if (eventStateDictionary["justPressedPrevState"]) justPressedPrevState = true;
+            if (eventStateDictionary["justPressedState"]) justPressedState = true;
+            if (eventStateDictionary["pressedPrevState"]) pressedPrevState = true;
+            if (eventStateDictionary["pressedState"]) pressedState = true;
+            if (eventStateDictionary["justReleasedPrevState"]) justReleasedPrevState = true;
+            if (eventStateDictionary["justReleasedState"]) justReleasedState = true;
+        }
+
+        overallEventStateDictionary["justPressedPrevState"] = justPressedPrevState;
+        overallEventStateDictionary["justPressedState"] = justPressedState;
+        overallEventStateDictionary["pressedPrevState"] = pressedPrevState;
+        overallEventStateDictionary["pressedState"] = pressedState;
+        overallEventStateDictionary["justReleasedPrevState"] = justReleasedPrevState;
+        overallEventStateDictionary["justReleasedState"] = justReleasedState;
+    }
 
 	/// <summary>
 	/// A method to check if the event modifier key is pressed, and return the state of the event modifier.
