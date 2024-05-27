@@ -504,8 +504,36 @@ public partial class GlobalInputCSharp : Node
 
     #endregion
 
+    Node2D MousePositionNode2D;
+    Vector2? screen_min = null;
+    Vector2? screen_max = null;
     public override void _Ready()
     {
+        for (int i = 0; i < DisplayServer.GetScreenCount(); i++)
+        {
+            var pos = DisplayServer.ScreenGetPosition(i) - DisplayServer.ScreenGetPosition((int)DisplayServer.ScreenPrimary);
+            var size = DisplayServer.ScreenGetSize(i);
+            if (screen_min == null)
+            {
+                screen_min = pos;
+            }
+            else {
+                if (pos.X < ((Vector2)screen_min).X) screen_min = new Vector2(pos.X, ((Vector2)screen_min).Y);
+                if (pos.Y < ((Vector2)screen_min).Y) screen_min = new Vector2(((Vector2)screen_min).X, pos.Y);
+            }
+
+            if (screen_max == null)
+            {
+                screen_max = new Vector2(pos.X + size.X, pos.Y + size.Y);
+            }
+            else
+            {
+                if (pos.X + size.X > ((Vector2)screen_max).X) screen_max = new Vector2(pos.X + size.X, ((Vector2)screen_max).Y);
+                if (pos.Y + size.Y > ((Vector2)screen_max).Y) screen_max = new Vector2(((Vector2)screen_max).X, pos.Y + size.Y);
+            }
+        }
+        MousePositionNode2D = new();
+        AddChild(MousePositionNode2D);
         InitializeSharpKeyState();
         InitializeActionDictionary();
         InitializeSignals();
@@ -592,6 +620,11 @@ public partial class GlobalInputCSharp : Node
             if (IsActionPressed(actionName)) return true;
         }
         return false;
+    }
+
+
+    public Vector2 GetMousePosition() {
+        return (Vector2)(MousePositionNode2D.GetGlobalMousePosition() + DisplayServer.WindowGetPosition() + screen_min);
     }
     #endregion
 }
