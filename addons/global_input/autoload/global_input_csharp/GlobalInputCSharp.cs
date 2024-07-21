@@ -182,19 +182,19 @@ public partial class GlobalInputCSharp : Node
                     {"justReleasedPrevState",   false},
                     {"justReleasedState",       false}
                 });
-
-                if (ActionDictionary[actionName].ContainsKey(OverallInputEventName)) continue;
-
-                ActionDictionary[actionName].Add(OverallInputEventName, new Dictionary<string, bool>()
-                {
-                    {"justPressedPrevState",    false},
-                    {"justPressedState",        false},
-                    {"pressedPrevState",        false},
-                    {"pressedState",            false},
-                    {"justReleasedPrevState",   false},
-                    {"justReleasedState",       false}
-                });
             }
+
+            if (ActionDictionary[actionName].ContainsKey(OverallInputEventName)) continue;
+
+            ActionDictionary[actionName].Add(OverallInputEventName, new Dictionary<string, bool>()
+            {
+                {"justPressedPrevState",    false},
+                {"justPressedState",        false},
+                {"pressedPrevState",        false},
+                {"pressedState",            false},
+                {"justReleasedPrevState",   false},
+                {"justReleasedState",       false}
+            });
         }
     }
     
@@ -370,8 +370,46 @@ public partial class GlobalInputCSharp : Node
         return keyModifierState;
     }
     
+    private void UpdateActionDictionary(string action)
+    {
+        if (!ActionDictionary.ContainsKey(action))
+        {
+            ActionDictionary.Add(action, new Dictionary<string, Dictionary<string, bool>>());
+        }
+
+        Dictionary<string, Dictionary<string, bool>> actionDict = ActionDictionary[action];
+
+        foreach (string inputEventName in InputMap.ActionGetEvents(action).Select(x => GetEventName(x)))
+        {
+            if (!actionDict.ContainsKey(inputEventName)) actionDict.Add(inputEventName, new Dictionary<string, bool>()
+            {
+                {"justPressedPrevState",    false},
+                {"justPressedState",        false},
+                {"pressedPrevState",        false},
+                {"pressedState",            false},
+                {"justReleasedPrevState",   false},
+                {"justReleasedState",       false}
+            });
+        }
+
+        if (actionDict.ContainsKey(OverallInputEventName)) return;
+
+        actionDict.Add(OverallInputEventName, new Dictionary<string, bool>()
+        {
+            {"justPressedPrevState",    false},
+            {"justPressedState",        false},
+            {"pressedPrevState",        false},
+            {"pressedState",            false},
+            {"justReleasedPrevState",   false},
+            {"justReleasedState",       false}
+        });
+    }
+
+
     private void UpdateAction(string action, string stateString, string prevStateString)
     {
+        UpdateActionDictionary(action);
+
         bool hasWheel = false;
         int eventCount = 0;
         int eventLength = InputMap.ActionGetEvents(action).Count;

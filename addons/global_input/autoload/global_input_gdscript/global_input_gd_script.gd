@@ -48,6 +48,9 @@ func is_key_pressed(key: int) -> bool:
 
 func get_vector(negative_x, positive_x, negative_y, positive_y) -> Vector2:
 	return global_input_csharp.GetVector(negative_x, positive_x, negative_y, positive_y)
+
+func get_mouse_position() -> Vector2:
+	return global_input_csharp.GetMousePosition()
 #-----------------------------------------------------------
 #10. signal methods
 #-----------------------------------------------------------
