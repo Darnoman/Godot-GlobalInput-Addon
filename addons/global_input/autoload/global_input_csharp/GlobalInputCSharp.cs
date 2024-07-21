@@ -372,16 +372,17 @@ public partial class GlobalInputCSharp : Node
     
     private void UpdateActionDictionary(string action)
     {
+        // Add action if it doesn't exist
         if (!ActionDictionary.ContainsKey(action))
         {
             ActionDictionary.Add(action, new Dictionary<string, Dictionary<string, bool>>());
         }
 
+        // Add events if they don't exist in the dictionary
         Dictionary<string, Dictionary<string, bool>> actionDict = ActionDictionary[action];
 
-        foreach (string inputEventName in InputMap.ActionGetEvents(action).Select(x => GetEventName(x)))
-        {
-            if (!actionDict.ContainsKey(inputEventName)) actionDict.Add(inputEventName, new Dictionary<string, bool>()
+        InputMap.ActionGetEvents(action).All((inputEvent) => {
+            if (!actionDict.ContainsKey(GetEventName(inputEvent))) actionDict.Add(GetEventName(inputEvent), new Dictionary<string, bool>()
             {
                 {"justPressedPrevState",    false},
                 {"justPressedState",        false},
@@ -390,8 +391,20 @@ public partial class GlobalInputCSharp : Node
                 {"justReleasedPrevState",   false},
                 {"justReleasedState",       false}
             });
+            return true;
+            });
+
+        // Remove events if they don't exist in the input map
+        foreach (string eventKey in actionDict.Keys)
+        {
+            string[] inputEventNames = InputMap.ActionGetEvents(action).Select((inputEvent) => GetEventName(inputEvent)).ToArray();
+            if (!inputEventNames.Contains(eventKey) && eventKey != OverallInputEventName)
+            {
+                actionDict.Remove(eventKey);
+            }
         }
 
+        // Add overall event
         if (actionDict.ContainsKey(OverallInputEventName)) return;
 
         actionDict.Add(OverallInputEventName, new Dictionary<string, bool>()
