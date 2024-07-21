@@ -17,7 +17,7 @@ config/icon="res://icon.png"
 
 [autoload]
 
-GlobalInput="*res://addons/global_input/autoload/global_input_gdscript/GlobalInputGDScript.tscn"
+GlobalInput="*res://addons/global_input/autoloads/global_input_gdscript/GlobalInputGDScript.tscn"
 
 [display]
 

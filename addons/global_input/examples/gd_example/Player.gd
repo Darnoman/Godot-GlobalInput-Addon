@@ -8,6 +8,9 @@ func _physics_process(delta: float) -> void:
 	# As good practice, you should replace UI actions with custom gameplay actions.
 	if (GlobalInput.is_action_just_pressed("mouse_left")):
 		print("CLICKED")
+
+	if (GlobalInput.is_action_pressed("mouse_left")):
+		print("PRESSED AT: ",GlobalInput.get_mouse_position())
 	
 	if (GlobalInput.is_action_just_released("mouse_left")):
 		print("RELEASED")
