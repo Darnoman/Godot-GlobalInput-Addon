@@ -607,6 +607,7 @@ public partial class GlobalInputCSharp : Node
                 UpdateSharpKeyState(sharpKeyNames, false);
             }
         }
+        GC.Collect();
     }
 
     #region Godot Input Methods
