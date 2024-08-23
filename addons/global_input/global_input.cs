@@ -10,7 +10,7 @@ public partial class global_input : EditorPlugin
 	public override void _EnterTree()
 	{
 		// Initialization of the plugin goes here.
-		AddAutoloadSingleton(GlobalInputGDAutoloadName, "res://addons/global_input/autoload/global_input_gdscript/GlobalInputGDScript.tscn");
+		AddAutoloadSingleton(GlobalInputGDAutoloadName, "res://addons/global_input/autoload/global_input_csharp/GlobalInputCSharp.tscn");
 	}
 
 	public override void _ExitTree()
