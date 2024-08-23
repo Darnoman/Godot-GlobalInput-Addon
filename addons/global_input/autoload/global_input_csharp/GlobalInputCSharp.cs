@@ -162,6 +162,7 @@ public partial class GlobalInputCSharp : Node
             MetaPressed = godotKey != Key.Meta ? Input.IsKeyPressed(Key.Meta) : false,
         };
         Input.ParseInputEvent(eventKey);
+        GC.Collect();
     }
     private void OnHookKeyReleased(object sender, KeyboardHookEventArgs e)
     {
@@ -177,6 +178,7 @@ public partial class GlobalInputCSharp : Node
             MetaPressed = godotKey != Key.Meta ? Input.IsKeyPressed(Key.Meta) : false,
         };
         Input.ParseInputEvent(eventKey);
+        GC.Collect();
     }
     private void OnHookMousePressed(object sender, MouseHookEventArgs e)
     {
@@ -192,6 +194,7 @@ public partial class GlobalInputCSharp : Node
             MetaPressed = Input.IsKeyPressed(Key.Meta),
         };
         Input.ParseInputEvent(eventMouseButton);
+        GC.Collect();
     }
     private void OnHookMouseReleased(object sender, MouseHookEventArgs e)
     {
@@ -207,6 +210,7 @@ public partial class GlobalInputCSharp : Node
             MetaPressed = Input.IsKeyPressed(Key.Meta),
         };
         Input.ParseInputEvent(eventMouseButton);
+        GC.Collect();
     }
     private void OnHookMouseWheel(object sender, MouseWheelHookEventArgs e)
     {
@@ -320,7 +324,7 @@ public partial class GlobalInputCSharp : Node
                 break;
         
         }
-        
+        GC.Collect();
     }
     #endregion
     
