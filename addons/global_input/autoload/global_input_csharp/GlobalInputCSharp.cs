@@ -8,8 +8,6 @@ public partial class GlobalInputCSharp : Node
 {
     #region Setup
     TaskPoolGlobalHook Hook = new();
-
-    static string OverallEventName = "Overall";
     Dictionary<Key, SharpHook.Native.KeyCode[]> GodotKeyToSharpHookKey = new()
     {
         {Key.None, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcUndefined}},
@@ -151,15 +149,15 @@ public partial class GlobalInputCSharp : Node
     private void OnHookKeyPressed(object sender, KeyboardHookEventArgs e)
     {
         Key godotKey = MapSharpKeyToGodotKey(e.RawEvent.Keyboard.KeyCode);
-        InputEventKey eventKey = new InputEventKey
+        InputEventKey eventKey = new()
         {
             Keycode = godotKey,
             PhysicalKeycode = godotKey,
             Pressed = true,
-            ShiftPressed = godotKey != Key.Shift ? Input.IsKeyPressed(Key.Shift) : false,
-            CtrlPressed = godotKey != Key.Ctrl ? Input.IsKeyPressed(Key.Ctrl) : false,
-            AltPressed = godotKey != Key.Alt ? Input.IsKeyPressed(Key.Alt) : false,
-            MetaPressed = godotKey != Key.Meta ? Input.IsKeyPressed(Key.Meta) : false,
+            ShiftPressed = godotKey != Key.Shift && Input.IsKeyPressed(Key.Shift),
+            CtrlPressed = godotKey != Key.Ctrl && Input.IsKeyPressed(Key.Ctrl),
+            AltPressed = godotKey != Key.Alt && Input.IsKeyPressed(Key.Alt),
+            MetaPressed = godotKey != Key.Meta && Input.IsKeyPressed(Key.Meta),
         };
         Input.ParseInputEvent(eventKey);
         GC.Collect();
@@ -167,25 +165,25 @@ public partial class GlobalInputCSharp : Node
     private void OnHookKeyReleased(object sender, KeyboardHookEventArgs e)
     {
         Key godotKey = MapSharpKeyToGodotKey(e.RawEvent.Keyboard.KeyCode);
-        InputEventKey eventKey = new InputEventKey
+        InputEventKey eventKey = new()
         {
             Keycode = godotKey,
             PhysicalKeycode = godotKey,
             Pressed = false,
-            ShiftPressed = godotKey != Key.Shift ? Input.IsKeyPressed(Key.Shift) : false,
-            CtrlPressed = godotKey != Key.Ctrl ? Input.IsKeyPressed(Key.Ctrl) : false,
-            AltPressed = godotKey != Key.Alt ? Input.IsKeyPressed(Key.Alt) : false,
-            MetaPressed = godotKey != Key.Meta ? Input.IsKeyPressed(Key.Meta) : false,
+            ShiftPressed = godotKey != Key.Shift && Input.IsKeyPressed(Key.Shift),
+            CtrlPressed = godotKey != Key.Ctrl && Input.IsKeyPressed(Key.Ctrl),
+            AltPressed = godotKey != Key.Alt && Input.IsKeyPressed(Key.Alt),
+            MetaPressed = godotKey != Key.Meta && Input.IsKeyPressed(Key.Meta),
         };
         Input.ParseInputEvent(eventKey);
         GC.Collect();
     }
     private void OnHookMousePressed(object sender, MouseHookEventArgs e)
     {
-        InputEventMouseButton eventMouseButton = new InputEventMouseButton
+        InputEventMouseButton eventMouseButton = new()
         {
             ButtonIndex = (MouseButton)e.RawEvent.Mouse.Button,
-            Position = new Vector2((float)e.RawEvent.Mouse.X, (float)e.RawEvent.Mouse.Y),
+            Position = new Vector2(e.RawEvent.Mouse.X, e.RawEvent.Mouse.Y),
             ButtonMask = (MouseButtonMask)e.RawEvent.Mouse.Button,
             Pressed = true,
             ShiftPressed = Input.IsKeyPressed(Key.Shift),
@@ -198,10 +196,10 @@ public partial class GlobalInputCSharp : Node
     }
     private void OnHookMouseReleased(object sender, MouseHookEventArgs e)
     {
-        InputEventMouseButton eventMouseButton = new InputEventMouseButton
+        InputEventMouseButton eventMouseButton = new()
         {
             ButtonIndex = (MouseButton)e.RawEvent.Mouse.Button,
-            Position = new Vector2((float)e.RawEvent.Mouse.X, (float)e.RawEvent.Mouse.Y),
+            Position = new Vector2(e.RawEvent.Mouse.X, e.RawEvent.Mouse.Y),
             ButtonMask = (MouseButtonMask)e.RawEvent.Mouse.Button,
             Pressed = false,
             ShiftPressed = Input.IsKeyPressed(Key.Shift),
@@ -219,10 +217,10 @@ public partial class GlobalInputCSharp : Node
             case SharpHook.Native.MouseWheelScrollDirection.Vertical:
                 if (e.RawEvent.Wheel.Rotation > 0)
                 {
-                    InputEventMouseButton eventMouseButton = new InputEventMouseButton
+                    InputEventMouseButton eventMouseButton = new()
                     {
                         ButtonIndex = MouseButton.WheelUp,
-                        Position = new Vector2((float)e.RawEvent.Mouse.X, (float)e.RawEvent.Mouse.Y),
+                        Position = new Vector2(e.RawEvent.Mouse.X, e.RawEvent.Mouse.Y),
                         Pressed = true,
                         ShiftPressed = Input.IsKeyPressed(Key.Shift),
                         CtrlPressed = Input.IsKeyPressed(Key.Ctrl),
@@ -230,10 +228,10 @@ public partial class GlobalInputCSharp : Node
                         MetaPressed = Input.IsKeyPressed(Key.Meta),
                     };
                     Input.ParseInputEvent(eventMouseButton);
-                    InputEventMouseButton eventMouseButton2 = new InputEventMouseButton
+                    InputEventMouseButton eventMouseButton2 = new()
                     {
                         ButtonIndex = MouseButton.WheelUp,
-                        Position = new Vector2((float)e.RawEvent.Mouse.X, (float)e.RawEvent.Mouse.Y),
+                        Position = new Vector2(e.RawEvent.Mouse.X, e.RawEvent.Mouse.Y),
                         Pressed = false,
                         ShiftPressed = Input.IsKeyPressed(Key.Shift),
                         CtrlPressed = Input.IsKeyPressed(Key.Ctrl),
@@ -244,10 +242,10 @@ public partial class GlobalInputCSharp : Node
                 }
                 else
                 {
-                    InputEventMouseButton eventMouseButton = new InputEventMouseButton
+                    InputEventMouseButton eventMouseButton = new()
                     {
                         ButtonIndex = MouseButton.WheelDown,
-                        Position = new Vector2((float)e.RawEvent.Mouse.X, (float)e.RawEvent.Mouse.Y),
+                        Position = new Vector2(e.RawEvent.Mouse.X, e.RawEvent.Mouse.Y),
                         Pressed = true,
                         ShiftPressed = Input.IsKeyPressed(Key.Shift),
                         CtrlPressed = Input.IsKeyPressed(Key.Ctrl),
@@ -255,10 +253,10 @@ public partial class GlobalInputCSharp : Node
                         MetaPressed = Input.IsKeyPressed(Key.Meta),
                     };
                     Input.ParseInputEvent(eventMouseButton);
-                    InputEventMouseButton eventMouseButton2 = new InputEventMouseButton
+                    InputEventMouseButton eventMouseButton2 = new()
                     {
                         ButtonIndex = MouseButton.WheelDown,
-                        Position = new Vector2((float)e.RawEvent.Mouse.X, (float)e.RawEvent.Mouse.Y),
+                        Position = new Vector2(e.RawEvent.Mouse.X, e.RawEvent.Mouse.Y),
                         Pressed = false,
                         ShiftPressed = Input.IsKeyPressed(Key.Shift),
                         CtrlPressed = Input.IsKeyPressed(Key.Ctrl),
