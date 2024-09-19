@@ -1,351 +1,244 @@
+#pragma warning disable CA1050
+
 using Godot;
-using System;
-using System.Collections.Generic;
 using SharpHook;
-using System.Linq;
+using SharpHook.Native;
+using System.Collections.Generic;
 
 public partial class GlobalInputCSharp : Node
 {
     #region Setup
-    TaskPoolGlobalHook Hook = new();
-    Dictionary<Key, SharpHook.Native.KeyCode[]> GodotKeyToSharpHookKey = new()
+    readonly TaskPoolGlobalHook _hook = new();
+    static readonly Dictionary<KeyCode, Key> _hKeyToGodotKey = new()
     {
-        {Key.None, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcUndefined}},
+        {KeyCode.VcUndefined, Key.None},
 
-        {Key.Escape, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcEscape}},
-        {Key.F1, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF1}},
-        {Key.F2, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF2}},
-        {Key.F3, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF3}},
-        {Key.F4, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF4}},
-        {Key.F5, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF5}},
-        {Key.F6, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF6}},
-        {Key.F7, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF7}},
-        {Key.F8, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF8}},
-        {Key.F9, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF9}},
-        {Key.F10, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF10}},
-        {Key.F11, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF11}},
-        {Key.F12, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF12}},
-        {Key.F13, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF13}},
-        {Key.F14, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF14}},
-        {Key.F15, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF15}},
-        {Key.F16, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF16}},
-        {Key.F17, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF17}},
-        {Key.F18, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF18}},
-        {Key.F19, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF19}},
-        {Key.F20, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF20}},
-        {Key.F21, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF21}},
-        {Key.F22, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF22}},
-        {Key.F23, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF23}},
-        {Key.F24, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF24}},
+        {KeyCode.VcEscape, Key.Escape},
+        {KeyCode.VcF1, Key.F1},
+        {KeyCode.VcF2, Key.F2},
+        {KeyCode.VcF3, Key.F3},
+        {KeyCode.VcF4, Key.F4},
+        {KeyCode.VcF5, Key.F5},
+        {KeyCode.VcF6, Key.F6},
+        {KeyCode.VcF7, Key.F7},
+        {KeyCode.VcF8, Key.F8},
+        {KeyCode.VcF9, Key.F9},
+        {KeyCode.VcF10, Key.F10},
+        {KeyCode.VcF11, Key.F11},
+        {KeyCode.VcF12, Key.F12},
+        {KeyCode.VcF13, Key.F13},
+        {KeyCode.VcF14, Key.F14},
+        {KeyCode.VcF15, Key.F15},
+        {KeyCode.VcF16, Key.F16},
+        {KeyCode.VcF17, Key.F17},
+        {KeyCode.VcF18, Key.F18},
+        {KeyCode.VcF19, Key.F19},
+        {KeyCode.VcF20, Key.F20},
+        {KeyCode.VcF21, Key.F21},
+        {KeyCode.VcF22, Key.F22},
+        {KeyCode.VcF23, Key.F23},
+        {KeyCode.VcF24, Key.F24},
 
-        {Key.Quoteleft, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcBackQuote}},
-        {Key.Key0, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.Vc0}},
-        {Key.Key1, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.Vc1}},
-        {Key.Key2, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.Vc2}},
-        {Key.Key3, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.Vc3}},
-        {Key.Key4, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.Vc4}},
-        {Key.Key5, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.Vc5}},
-        {Key.Key6, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.Vc6}},
-        {Key.Key7, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.Vc7}},
-        {Key.Key8, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.Vc8}},
-        {Key.Key9, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.Vc9}},
-        {Key.Minus, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcMinus}},
-        {Key.Equal, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcEquals}},
-        {Key.Backspace, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcBackspace}},
+        {KeyCode.VcBackQuote, Key.Quoteleft},
+        {KeyCode.Vc0, Key.Key0},
+        {KeyCode.Vc1, Key.Key1},
+        {KeyCode.Vc2, Key.Key2},
+        {KeyCode.Vc3, Key.Key3},
+        {KeyCode.Vc4, Key.Key4},
+        {KeyCode.Vc5, Key.Key5},
+        {KeyCode.Vc6, Key.Key6},
+        {KeyCode.Vc7, Key.Key7},
+        {KeyCode.Vc8, Key.Key8},
+        {KeyCode.Vc9, Key.Key9},
+        {KeyCode.VcMinus, Key.Minus},
+        {KeyCode.VcEquals, Key.Equal},
+        {KeyCode.VcBackspace, Key.Backspace},
 
-        {Key.Tab, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcTab}},
-        {Key.Capslock, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcCapsLock}},
+        {KeyCode.VcTab, Key.Tab},
+        {KeyCode.VcCapsLock, Key.Capslock},
 
-        {Key.A, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcA}},
-        {Key.B, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcB}},
-        {Key.C, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcC}},
-        {Key.D, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcD}},
-        {Key.E, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcE}},
-        {Key.F, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcF}},
-        {Key.G, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcG}},
-        {Key.H, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcH}},
-        {Key.I, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcI}},
-        {Key.J, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcJ}},
-        {Key.K, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcK}},
-        {Key.L, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcL}},
-        {Key.M, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcM}},
-        {Key.N, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcN}},
-        {Key.O, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcO}},
-        {Key.P, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcP}},
-        {Key.Q, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcQ}},
-        {Key.R, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcR}},
-        {Key.S, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcS}},
-        {Key.T, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcT}},
-        {Key.U, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcU}},
-        {Key.V, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcV}},
-        {Key.W, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcW}},
-        {Key.X, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcX}},
-        {Key.Y, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcY}},
-        {Key.Z, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcZ}},
+        {KeyCode.VcA, Key.A},
+        {KeyCode.VcB, Key.B},
+        {KeyCode.VcC, Key.C},
+        {KeyCode.VcD, Key.D},
+        {KeyCode.VcE, Key.E},
+        {KeyCode.VcF, Key.F},
+        {KeyCode.VcG, Key.G},
+        {KeyCode.VcH, Key.H},
+        {KeyCode.VcI, Key.I},
+        {KeyCode.VcJ, Key.J},
+        {KeyCode.VcK, Key.K},
+        {KeyCode.VcL, Key.L},
+        {KeyCode.VcM, Key.M},
+        {KeyCode.VcN, Key.N},
+        {KeyCode.VcO, Key.O},
+        {KeyCode.VcP, Key.P},
+        {KeyCode.VcQ, Key.Q},
+        {KeyCode.VcR, Key.R},
+        {KeyCode.VcS, Key.S},
+        {KeyCode.VcT, Key.T},
+        {KeyCode.VcU, Key.U},
+        {KeyCode.VcV, Key.V},
+        {KeyCode.VcW, Key.W},
+        {KeyCode.VcX, Key.X},
+        {KeyCode.VcY, Key.Y},
+        {KeyCode.VcZ, Key.Z},
 
-        {Key.Bracketleft, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcOpenBracket}},
-        {Key.Bracketright, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcCloseBracket}},
-        {Key.Backslash, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcBackslash}},
-        {Key.Semicolon, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcSemicolon}},
-        {Key.Quotedbl, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcQuote}},
-        {Key.Enter, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcEnter}},
-        {Key.Comma, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcComma}},
-        {Key.Period, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcPeriod}},
-        {Key.Slash, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcSlash}},
-        {Key.Space, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcSpace}},
+        {KeyCode.VcOpenBracket, Key.Bracketleft},
+        {KeyCode.VcCloseBracket, Key.Bracketright},
+        {KeyCode.VcBackslash, Key.Backslash},
+        {KeyCode.VcSemicolon, Key.Semicolon},
+        {KeyCode.VcQuote, Key.Quotedbl},
+        {KeyCode.VcEnter, Key.Enter},
+        {KeyCode.VcComma, Key.Comma},
+        {KeyCode.VcPeriod, Key.Period},
+        {KeyCode.VcSlash, Key.Slash},
+        {KeyCode.VcSpace, Key.Space},
 
-        {Key.Print, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcPrintScreen}},
-        {Key.Insert, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcInsert}},
-        {Key.Home, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcHome}},
-        {Key.Pageup, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcPageUp}},
-        {Key.Delete, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcDelete}},
-        {Key.End, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcEnd}},
-        {Key.Pagedown, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcPageDown}},
+        {KeyCode.VcPrintScreen, Key.Print},
+        {KeyCode.VcInsert, Key.Insert},
+        {KeyCode.VcHome, Key.Home},
+        {KeyCode.VcPageUp, Key.Pageup},
+        {KeyCode.VcDelete, Key.Delete},
+        {KeyCode.VcEnd, Key.End},
+        {KeyCode.VcPageDown, Key.Pagedown},
 
-        {Key.Down, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcDown}},
-        {Key.Up, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcUp}},
-        {Key.Right, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcRight}},
-        {Key.Left, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcLeft}},
+        {KeyCode.VcDown, Key.Down},
+        {KeyCode.VcUp, Key.Up},
+        {KeyCode.VcRight, Key.Right},
+        {KeyCode.VcLeft, Key.Left},
 
-        {Key.Numlock, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumLock}},
-        {Key.Kp0, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumPad0}},
-        {Key.Kp1, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumPad1}},
-        {Key.Kp2, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumPad2}},
-        {Key.Kp3, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumPad3}},
-        {Key.Kp4, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumPad4}},
-        {Key.Kp5, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumPad5}},
-        {Key.Kp6, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumPad6}},
-        {Key.Kp7, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumPad7}},
-        {Key.Kp8, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumPad8}},
-        {Key.Kp9, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumPad9}},
-        {Key.KpDivide, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumPadDivide}},
-        {Key.KpMultiply, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumPadMultiply}},
-        {Key.KpSubtract, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumPadSubtract}},
-        {Key.KpAdd, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumPadAdd}},
-        {Key.KpPeriod, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumPadDecimal}},
-        {Key.KpEnter, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcNumPadEnter}},
+        {KeyCode.VcNumLock, Key.Numlock},
+        {KeyCode.VcNumPad0, Key.Kp0},
+        {KeyCode.VcNumPad1, Key.Kp1},
+        {KeyCode.VcNumPad2, Key.Kp2},
+        {KeyCode.VcNumPad3, Key.Kp3},
+        {KeyCode.VcNumPad4, Key.Kp4},
+        {KeyCode.VcNumPad5, Key.Kp5},
+        {KeyCode.VcNumPad6, Key.Kp6},
+        {KeyCode.VcNumPad7, Key.Kp7},
+        {KeyCode.VcNumPad8, Key.Kp8},
+        {KeyCode.VcNumPad9, Key.Kp9},
+        {KeyCode.VcNumPadDivide, Key.KpDivide},
+        {KeyCode.VcNumPadMultiply, Key.KpMultiply},
+        {KeyCode.VcNumPadSubtract, Key.KpSubtract},
+        {KeyCode.VcNumPadAdd, Key.KpAdd},
+        {KeyCode.VcNumPadDecimal, Key.KpPeriod},
+        {KeyCode.VcNumPadEnter, Key.KpEnter},
 
-        {Key.Shift, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcLeftShift, SharpHook.Native.KeyCode.VcRightShift}},
-        {Key.Ctrl, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcLeftControl, SharpHook.Native.KeyCode.VcRightControl}},
-        {Key.Alt, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcLeftAlt, SharpHook.Native.KeyCode.VcRightAlt}},
-        {Key.Meta, new SharpHook.Native.KeyCode[] {SharpHook.Native.KeyCode.VcLeftMeta, SharpHook.Native.KeyCode.VcRightMeta}},
+        {KeyCode.VcLeftShift, Key.Shift},
+        {KeyCode.VcRightShift, Key.Shift},
+        {KeyCode.VcLeftControl, Key.Ctrl},
+        {KeyCode.VcRightControl, Key.Ctrl},
+        {KeyCode.VcLeftAlt, Key.Alt},
+        {KeyCode.VcRightAlt, Key.Alt},
+        {KeyCode.VcLeftMeta, Key.Meta},
+        {KeyCode.VcRightMeta, Key.Meta},
     };
     #endregion
 
     #region Setup Functions
-    private void InitializeSharpHookSignals()
+    void InitializeSharpHookSignals()
     {
-        Hook.KeyPressed += OnHookKeyPressed;
-        Hook.KeyReleased += OnHookKeyReleased;
+        _hook.KeyPressed += OnHookKeyPressed;
+        _hook.KeyReleased += OnHookKeyReleased;
 
-        Hook.MousePressed += OnHookMousePressed;
-        Hook.MouseReleased += OnHookMouseReleased;
+        _hook.MousePressed += OnHookMousePressed;
+        _hook.MouseReleased += OnHookMouseReleased;
 
-        Hook.MouseWheel += OnHookMouseWheel;
+        _hook.MouseWheel += OnHookMouseWheel;
     }
     #endregion
 
     #region Signals
-    private void OnHookKeyPressed(object sender, KeyboardHookEventArgs e)
+    void OnHookKeyPressed(object _, KeyboardHookEventArgs args)
     {
-        Key godotKey = MapSharpKeyToGodotKey(e.RawEvent.Keyboard.KeyCode);
-        InputEventKey eventKey = new()
-        {
-            Keycode = godotKey,
-            PhysicalKeycode = godotKey,
-            Pressed = true,
-            ShiftPressed = godotKey != Key.Shift && Input.IsKeyPressed(Key.Shift),
-            CtrlPressed = godotKey != Key.Ctrl && Input.IsKeyPressed(Key.Ctrl),
-            AltPressed = godotKey != Key.Alt && Input.IsKeyPressed(Key.Alt),
-            MetaPressed = godotKey != Key.Meta && Input.IsKeyPressed(Key.Meta),
-        };
-        Input.ParseInputEvent(eventKey);
-        GC.Collect();
+        InputEventKey e = GetInputEventKey(args.Data.KeyCode, true);
+        Input.ParseInputEvent(e);
     }
-    private void OnHookKeyReleased(object sender, KeyboardHookEventArgs e)
+
+    void OnHookKeyReleased(object _, KeyboardHookEventArgs args)
     {
-        Key godotKey = MapSharpKeyToGodotKey(e.RawEvent.Keyboard.KeyCode);
-        InputEventKey eventKey = new()
-        {
-            Keycode = godotKey,
-            PhysicalKeycode = godotKey,
-            Pressed = false,
-            ShiftPressed = godotKey != Key.Shift && Input.IsKeyPressed(Key.Shift),
-            CtrlPressed = godotKey != Key.Ctrl && Input.IsKeyPressed(Key.Ctrl),
-            AltPressed = godotKey != Key.Alt && Input.IsKeyPressed(Key.Alt),
-            MetaPressed = godotKey != Key.Meta && Input.IsKeyPressed(Key.Meta),
-        };
-        Input.ParseInputEvent(eventKey);
-        GC.Collect();
+        InputEventKey e = GetInputEventKey(args.Data.KeyCode, false);
+        Input.ParseInputEvent(e);
     }
-    private void OnHookMousePressed(object sender, MouseHookEventArgs e)
+
+    void OnHookMousePressed(object _, MouseHookEventArgs args)
     {
-        InputEventMouseButton eventMouseButton = new()
-        {
-            ButtonIndex = (MouseButton)e.RawEvent.Mouse.Button,
-            Position = new Vector2(e.RawEvent.Mouse.X, e.RawEvent.Mouse.Y),
-            ButtonMask = (MouseButtonMask)e.RawEvent.Mouse.Button,
-            Pressed = true,
-            ShiftPressed = Input.IsKeyPressed(Key.Shift),
-            CtrlPressed = Input.IsKeyPressed(Key.Ctrl),
-            AltPressed = Input.IsKeyPressed(Key.Alt),
-            MetaPressed = Input.IsKeyPressed(Key.Meta),
-        };
-        Input.ParseInputEvent(eventMouseButton);
-        GC.Collect();
+        InputEventMouseButton e = GetInputEventMouseButton(args.Data, true);
+        Input.ParseInputEvent(e);
     }
-    private void OnHookMouseReleased(object sender, MouseHookEventArgs e)
+
+    void OnHookMouseReleased(object _, MouseHookEventArgs args)
     {
-        InputEventMouseButton eventMouseButton = new()
-        {
-            ButtonIndex = (MouseButton)e.RawEvent.Mouse.Button,
-            Position = new Vector2(e.RawEvent.Mouse.X, e.RawEvent.Mouse.Y),
-            ButtonMask = (MouseButtonMask)e.RawEvent.Mouse.Button,
-            Pressed = false,
-            ShiftPressed = Input.IsKeyPressed(Key.Shift),
-            CtrlPressed = Input.IsKeyPressed(Key.Ctrl),
-            AltPressed = Input.IsKeyPressed(Key.Alt),
-            MetaPressed = Input.IsKeyPressed(Key.Meta),
-        };
-        Input.ParseInputEvent(eventMouseButton);
-        GC.Collect();
+        InputEventMouseButton e = GetInputEventMouseButton(args.Data, false);
+        Input.ParseInputEvent(e);
     }
-    private void OnHookMouseWheel(object sender, MouseWheelHookEventArgs e)
+
+    void OnHookMouseWheel(object _, MouseWheelHookEventArgs args)
     {
-        switch (e.RawEvent.Wheel.Direction)
+        InputEventMouseButton e = GetInputEventMouseButton(args.RawEvent.Mouse, true);
+
+        if (args.Data.Direction == MouseWheelScrollDirection.Vertical)
         {
-            case SharpHook.Native.MouseWheelScrollDirection.Vertical:
-                if (e.RawEvent.Wheel.Rotation > 0)
-                {
-                    InputEventMouseButton eventMouseButton = new()
-                    {
-                        ButtonIndex = MouseButton.WheelUp,
-                        Position = new Vector2(e.RawEvent.Mouse.X, e.RawEvent.Mouse.Y),
-                        Pressed = true,
-                        ShiftPressed = Input.IsKeyPressed(Key.Shift),
-                        CtrlPressed = Input.IsKeyPressed(Key.Ctrl),
-                        AltPressed = Input.IsKeyPressed(Key.Alt),
-                        MetaPressed = Input.IsKeyPressed(Key.Meta),
-                    };
-                    Input.ParseInputEvent(eventMouseButton);
-                    InputEventMouseButton eventMouseButton2 = new()
-                    {
-                        ButtonIndex = MouseButton.WheelUp,
-                        Position = new Vector2(e.RawEvent.Mouse.X, e.RawEvent.Mouse.Y),
-                        Pressed = false,
-                        ShiftPressed = Input.IsKeyPressed(Key.Shift),
-                        CtrlPressed = Input.IsKeyPressed(Key.Ctrl),
-                        AltPressed = Input.IsKeyPressed(Key.Alt),
-                        MetaPressed = Input.IsKeyPressed(Key.Meta),
-                    };
-                    Input.ParseInputEvent(eventMouseButton2);
-                }
-                else
-                {
-                    InputEventMouseButton eventMouseButton = new()
-                    {
-                        ButtonIndex = MouseButton.WheelDown,
-                        Position = new Vector2(e.RawEvent.Mouse.X, e.RawEvent.Mouse.Y),
-                        Pressed = true,
-                        ShiftPressed = Input.IsKeyPressed(Key.Shift),
-                        CtrlPressed = Input.IsKeyPressed(Key.Ctrl),
-                        AltPressed = Input.IsKeyPressed(Key.Alt),
-                        MetaPressed = Input.IsKeyPressed(Key.Meta),
-                    };
-                    Input.ParseInputEvent(eventMouseButton);
-                    InputEventMouseButton eventMouseButton2 = new()
-                    {
-                        ButtonIndex = MouseButton.WheelDown,
-                        Position = new Vector2(e.RawEvent.Mouse.X, e.RawEvent.Mouse.Y),
-                        Pressed = false,
-                        ShiftPressed = Input.IsKeyPressed(Key.Shift),
-                        CtrlPressed = Input.IsKeyPressed(Key.Ctrl),
-                        AltPressed = Input.IsKeyPressed(Key.Alt),
-                        MetaPressed = Input.IsKeyPressed(Key.Meta),
-                    };
-                    Input.ParseInputEvent(eventMouseButton2);
-                }
-                break;
-            case SharpHook.Native.MouseWheelScrollDirection.Horizontal:
-                if (e.RawEvent.Wheel.Rotation > 0)
-                {
-                    InputEventMouseButton eventMouseButton = new InputEventMouseButton
-                    {
-                        ButtonIndex = MouseButton.WheelRight,
-                        Position = new Vector2((float)e.RawEvent.Mouse.X, (float)e.RawEvent.Mouse.Y),
-                        Pressed = true,
-                        ShiftPressed = Input.IsKeyPressed(Key.Shift),
-                        CtrlPressed = Input.IsKeyPressed(Key.Ctrl),
-                        AltPressed = Input.IsKeyPressed(Key.Alt),
-                        MetaPressed = Input.IsKeyPressed(Key.Meta),
-                    };
-                    Input.ParseInputEvent(eventMouseButton);
-                    InputEventMouseButton eventMouseButton2 = new InputEventMouseButton
-                    {
-                        ButtonIndex = MouseButton.WheelRight,
-                        Position = new Vector2((float)e.RawEvent.Mouse.X, (float)e.RawEvent.Mouse.Y),
-                        Pressed = false,
-                        ShiftPressed = Input.IsKeyPressed(Key.Shift),
-                        CtrlPressed = Input.IsKeyPressed(Key.Ctrl),
-                        AltPressed = Input.IsKeyPressed(Key.Alt),
-                        MetaPressed = Input.IsKeyPressed(Key.Meta),
-                    };
-                    Input.ParseInputEvent(eventMouseButton2);
-                }
-                else
-                {
-                    InputEventMouseButton eventMouseButton = new InputEventMouseButton
-                    {
-                        ButtonIndex = MouseButton.WheelLeft,
-                        Position = new Vector2((float)e.RawEvent.Mouse.X, (float)e.RawEvent.Mouse.Y),
-                        Pressed = true,
-                        ShiftPressed = Input.IsKeyPressed(Key.Shift),
-                        CtrlPressed = Input.IsKeyPressed(Key.Ctrl),
-                        AltPressed = Input.IsKeyPressed(Key.Alt),
-                        MetaPressed = Input.IsKeyPressed(Key.Meta),
-                    };
-                    Input.ParseInputEvent(eventMouseButton);
-                    InputEventMouseButton eventMouseButton2 = new InputEventMouseButton
-                    {
-                        ButtonIndex = MouseButton.WheelLeft,
-                        Position = new Vector2((float)e.RawEvent.Mouse.X, (float)e.RawEvent.Mouse.Y),
-                        Pressed = false,
-                        ShiftPressed = Input.IsKeyPressed(Key.Shift),
-                        CtrlPressed = Input.IsKeyPressed(Key.Ctrl),
-                        AltPressed = Input.IsKeyPressed(Key.Alt),
-                        MetaPressed = Input.IsKeyPressed(Key.Meta),
-                    };
-                    Input.ParseInputEvent(eventMouseButton2);
-                }
-                break;
-            default:
-                break;
-        
+            e.ButtonIndex = args.Data.Rotation > 0 ? Godot.MouseButton.WheelUp : Godot.MouseButton.WheelDown;
         }
-        GC.Collect();
+        else
+        {
+            e.ButtonIndex = args.Data.Rotation > 0 ? Godot.MouseButton.WheelRight : Godot.MouseButton.WheelLeft;
+        }
+
+        Input.ParseInputEvent(e);
+        e.Pressed = false;
+        Input.ParseInputEvent(e);
     }
     #endregion
-    
+
     #region Helper Functions
-    private SharpHook.Native.KeyCode[] MapGodotKeyToSharpKey(Key godotKey)
+    static InputEventKey GetInputEventKey(KeyCode hKey, bool pressed)
     {
-        if (GodotKeyToSharpHookKey.ContainsKey(godotKey)) return GodotKeyToSharpHookKey[godotKey]; // if the godot key has a Sharp key, return it
-        return Array.Empty<SharpHook.Native.KeyCode>();
-    }
-    private Key MapSharpKeyToGodotKey(SharpHook.Native.KeyCode sharpKey)
-    {
-        foreach (Key godotKey in GodotKeyToSharpHookKey.Keys) // loop through each Godot key
+        Key godotKey = ToGodotKey(hKey);
+        return new InputEventKey()
         {
-            SharpHook.Native.KeyCode[] sharpKeys = GodotKeyToSharpHookKey[godotKey];
-            if (sharpKeys.Contains(sharpKey)) return godotKey;
+            Keycode = godotKey,
+            PhysicalKeycode = godotKey,
+            Pressed = pressed,
+            ShiftPressed = godotKey != Key.Shift && Input.IsKeyPressed(Key.Shift),
+            CtrlPressed = godotKey != Key.Ctrl && Input.IsKeyPressed(Key.Ctrl),
+            AltPressed = godotKey != Key.Alt && Input.IsKeyPressed(Key.Alt),
+            MetaPressed = godotKey != Key.Meta && Input.IsKeyPressed(Key.Meta),
+        };
+    }
+
+    static InputEventMouseButton GetInputEventMouseButton(MouseEventData mouse, bool pressed)
+    {
+        return new InputEventMouseButton()
+        {
+            ButtonIndex = (Godot.MouseButton)mouse.Button,
+            Position = new Vector2(mouse.X, mouse.Y),
+            ButtonMask = (MouseButtonMask)mouse.Button,
+            Pressed = pressed,
+            ShiftPressed = Input.IsKeyPressed(Key.Shift),
+            CtrlPressed = Input.IsKeyPressed(Key.Ctrl),
+            AltPressed = Input.IsKeyPressed(Key.Alt),
+            MetaPressed = Input.IsKeyPressed(Key.Meta),
+        };
+    }
+
+    static Key ToGodotKey(KeyCode hKey)
+    {
+        if (_hKeyToGodotKey.TryGetValue(hKey, out Key key))
+        {
+            return key;
         }
+
         return Key.None;
     }
     #endregion
-    
+
     public override void _Ready()
     {
         InitializeSharpHookSignals();
-        Hook.RunAsync();
+        _hook.RunAsync();
     }
 }
