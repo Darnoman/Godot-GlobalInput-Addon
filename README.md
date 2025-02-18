@@ -18,6 +18,6 @@ https://youtu.be/oJLsgq3i-yw - for v 0.1 (but should still work)
 
 **--------------------------------------------------**
 
-Issue: When a button is held down and the window becomes out of focus, it fires a "just released" event.
+Issue: When a button is held down and the window becomes out of focus, it fires a "just released" event. To get around this, use "master" branch.
 
 Use Input as normal, just now it captures inputs when window is out of focus.
